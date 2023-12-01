@@ -78,6 +78,14 @@ struct necesitanRestock
 
 }*cima, * adelante;
 
+//Para busqueda binaria
+union IDints {
+    int idEntero;
+};
+
+union IDints codigosToInts[MAX];
+int indiceUnion = 0;
+
 //Datos de los productos
 struct productos
 {
@@ -129,6 +137,11 @@ void imprimirProductosRestock();
 int restock(struct productos producto[]);
 int IDtoIndex(string ident, int cantidad, struct productos producto[]);
 void administracionCliente();
+int buscarIndexPorID(int cantidad, union IDints a[], string ID);
+void codigosAenteros(union IDints arreglo[], struct productos producto[]);
+void quicksort(union IDints arreglo[], int primero, int ultimo);
+int consultaIdExiste(int cantidad, union IDints a[], string ID);
+
 
 hashnode HashTable[1000];
 int tablesize = 20;
@@ -158,7 +171,6 @@ int main()
     int op,aux,key;
     string categoria;
     cargaDatos(stock, caduc);
-
 
     do
     {
@@ -285,11 +297,11 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
 
 void agregarProductos(struct productos objeto[], struct caducidad &caduc)
 {
-    int op = 0, aux;
+    int op = 0, aux,indice,clave;
     string cadenaAux;
     string codigo;
     string fecha;
-    bool ban;
+    bool ban=false;
     cout << "Ingrese el nombre del producto: ";
     getline(cin, cadenaAux);
     system("cls");
@@ -345,9 +357,17 @@ void agregarProductos(struct productos objeto[], struct caducidad &caduc)
         cout << "Asigne un nuevo ID al producto, tendra que ser uno que no se ha usado: ";
         cin >> codigo;
         cin.ignore();
-        ban = buscarCodigo(codigo, cantidadObjetos, objeto);
-
-    } while (ban==true);
+        indice = buscarIndexPorID(cantidadObjetos, codigosToInts,codigo);
+        if (indice == -1)
+        {
+            
+            ban = true;
+        }
+        else
+        {
+            cout << "Ese codigo esta ocupado, por favor intente de nuevo" << endl << endl;
+        }
+    } while (ban==false);
     objeto[cantidadObjetos].id = codigo;
     system("cls");
     cout << endl << "Codigo guardado" << endl << endl;
@@ -595,7 +615,7 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
 {
     historialMovimientos* nuevo = new historialMovimientos();
     bool ban = false, hecho = false;
-    string cadena,auxiliar,strAntiguo;
+    string cadena,auxiliar,strAntiguo,claveID;
     string tiempo;
     char time[25];
     int fecha,op,aux,aux2,numAnterior,operacion,indice;
@@ -634,16 +654,14 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
         case 2:
             cout << endl << "Estos son los productos actuales:" << endl << endl;
             mostrarProductos(producto, cantidadObjetos);
-            cout << endl << "Ingrese el número del producto que desea cambiar: ";
-            cin >> indice;
-            cin.ignore();  
+            indice= consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
             cout << endl << "Ingrese el nuevo nombre: ";
             getline(cin, auxiliar);
-            nuevo->antiguo = producto[indice - 1].nombre;
+            nuevo->antiguo = producto[indice].nombre;
             nuevo->nuevo = auxiliar;
-            producto[indice - 1].nombre = auxiliar;
+            producto[indice].nombre = auxiliar;
             nuevo->tipo = "Cambio de Nombre";
-            nuevo->producto = producto[indice - 1].nombre;
+            nuevo->producto = producto[indice].nombre;
             hecho = true;
             break;
 
@@ -898,36 +916,6 @@ void mostrarCategorias()
         cout << i + 1 << "- " << cadena << "|| ";
         i++;
     }
-}
-
-//Aplicando Busqueda Binaria
-void binaria(int cantidad, string datoBuscar, struct productos a[])
-{
-    int mitad, izq, der;
-    bool encontrado = false;
-    izq = 0;
-    der = cantidad - 1;
-
-    while (izq <= der)
-    {
-        mitad = (izq + der) / 2;
-        if (datoBuscar > a[mitad].id)
-        {
-            izq = mitad + 1;
-        }
-        else if (datoBuscar < a[mitad].id)
-        {
-            der = mitad - 1;
-        }
-        else
-        {
-            cout << endl << "Elemento encontrado en la posicion: " << mitad << endl;
-            encontrado = true;
-            break;
-        }
-    }
-    if (encontrado == false)
-        cout << "Elemento no se encuentra" << endl;
 }
 
 string ingresarFecha()
@@ -1203,4 +1191,102 @@ int restock(struct productos producto[])
         return suma;
     }
     
+}
+void codigosAenteros(union IDints arreglo[], struct productos producto[])
+{
+    int i, valor;
+    for (i = 0; i < cantidadObjetos; i++)
+    {
+        valor = stringtokey(producto[i].id);
+        arreglo[i].idEntero = valor;
+    }
+
+}
+
+//Quickshort
+void quicksort(union IDints arreglo[], int primero, int ultimo)
+{
+    int central, i, j, pivote, temporal;
+    //Posición del elemento central
+    central = (primero + ultimo) / 2;
+    //Obetener el valor del elemento central;
+    pivote = arreglo[central].idEntero;
+    //Separar los dos segmentos
+    i = primero;
+    j = ultimo;
+    do {
+        //Elementos menor al pivote
+        while (arreglo[i].idEntero < pivote)i++;
+        //Elementos mayor al pivote
+        while (arreglo[j].idEntero > pivote)j--;
+        if (i <= j)
+        {
+            //Intercambio de valores
+            temporal = arreglo[i].idEntero;
+            arreglo[i].idEntero = arreglo[j].idEntero;
+            arreglo[j].idEntero = temporal;
+            i++;
+            j--;
+        }
+
+    } while (i <= j);
+    if (primero < j)
+    {
+        quicksort(arreglo, primero, j);
+    }
+    if (i < ultimo)
+    {
+        quicksort(arreglo, i, ultimo);
+    }
+}
+//Busqueda binaria
+int buscarIndexPorID(int cantidad, union IDints a[],string ID)
+{
+    int numeroBuscar = stringtokey(ID);
+    codigosAenteros(codigosToInts, stock);
+    quicksort(codigosToInts, 0, cantidadObjetos - 1);
+    int mitad, izq, der;
+    izq = 0;
+    der = cantidad - 1;
+
+    while (izq <= der)
+    {
+        mitad = (izq + der) / 2;
+        if (numeroBuscar > a[mitad].idEntero)
+        {
+            izq = mitad + 1;
+        }
+        else if (numeroBuscar < a[mitad].idEntero)
+        {
+            der = mitad - 1;
+        }
+        else
+        {
+            return mitad;
+        }
+    }
+    return -1;
+}
+
+int consultaIdExiste(int cantidad, union IDints a[], string ID)
+{
+    int indice;
+    bool ban=false;
+    string codigo;
+    do
+    {
+        cout << "Ingrese el ID del codigo producto deseado: ";
+        cin >> codigo;
+        cin.ignore();
+        indice = buscarIndexPorID(cantidadObjetos, codigosToInts, codigo);
+        if (indice == -1)
+        {
+            cout << "Este codigo no existe en el registro, porfavor intente de nuevo" << endl << endl;
+        }
+        else
+        {
+            ban = true;
+        }
+    } while (ban == false);
+    return indice;
 }
