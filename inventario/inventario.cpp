@@ -39,7 +39,7 @@ struct historialMovimientos
 //Hashing
 struct productosPorCategorias
 {
-    string nombre;
+    string ID;
     string categoria;
     struct productosPorCategorias* next;
 };
@@ -112,7 +112,7 @@ string obtenerHora();
 int stringtokey(string name);
 void agregarCategoriaHASH(string nombre, string categoria);
 int buscarnodo(string nName);
-void ImprimirLista(hashnode n);
+void ImprimirLista(hashnode n, struct productos producto[]);
 void IniciarTabla();
 void ImprimirTabla();
 
@@ -191,7 +191,7 @@ int main()
             {
                 system("cls");
                 cout << "Se muestran los productos de la categoria "<< categorias[aux - 1] << endl<<endl;
-                ImprimirLista(HashTable[key]);
+                ImprimirLista(HashTable[key],stock);
                 cout << endl << endl;
             }
             system("pause");
@@ -210,7 +210,7 @@ int main()
 
 void cargaDatos(struct productos objeto[], struct caducidad& caduc)
 {
-    string nombre, categoria;
+    string ID, categoria;
 
     objeto[0].nombre = "Coca cola";
     objeto[0].categoria = "Bebidas";
@@ -218,9 +218,9 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
     agregarCaducidad(caduc, "001", 20231212);
     objeto[0].id = "001";
     objeto[0].precio = 15;
-    nombre = objeto[0].nombre;
+    ID = objeto[0].id;
     categoria = objeto[0].categoria;
-    agregarCategoriaHASH(nombre, categoria);
+    agregarCategoriaHASH(ID, categoria);
 
     objeto[1].nombre = "Desodorante";
     objeto[1].categoria = "Cuidado Personal";
@@ -228,9 +228,9 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
     agregarCaducidad(caduc,"002", 999999999);
     objeto[1].id = "002";
     objeto[1].precio = 22;
-    nombre = objeto[1].nombre;
+    ID = objeto[1].id;
     categoria = objeto[1].categoria;
-    agregarCategoriaHASH(nombre, categoria);
+    agregarCategoriaHASH(ID, categoria);
 
 
     objeto[2].nombre = "Shampoo";
@@ -239,9 +239,9 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
     agregarCaducidad(caduc, "003", 999999999);
     objeto[2].id = "003";
     objeto[2].precio = 35;
-    nombre = objeto[2].nombre;
+    ID = objeto[2].id;
     categoria = objeto[2].categoria;
-    agregarCategoriaHASH(nombre, categoria);
+    agregarCategoriaHASH(ID, categoria);
 
     objeto[3].nombre = "Pan de caja";
     objeto[3].categoria = "Alimentos";
@@ -249,9 +249,9 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
     agregarCaducidad(caduc, "004", 20231412);
     objeto[3].id = "004";
     objeto[3].precio = 24;
-    nombre = objeto[3].nombre;
+    ID = objeto[3].id;
     categoria = objeto[3].categoria;
-    agregarCategoriaHASH(nombre, categoria);
+    agregarCategoriaHASH(ID, categoria);
 
     objeto[4].nombre = "Galletas";
     objeto[4].categoria = "Alimentos";
@@ -259,9 +259,9 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
     agregarCaducidad(caduc, "005", 20241001);
     objeto[4].id = "005";
     objeto[4].precio = 11;
-    nombre = objeto[4].nombre;
+    ID = objeto[4].id;
     categoria = objeto[4].categoria;
-    agregarCategoriaHASH(nombre, categoria);
+    agregarCategoriaHASH(ID, categoria);
 
     categorias.push_back("Bebidas");
     categorias.push_back("Cuidado Personal");
@@ -947,7 +947,7 @@ void agregarCategoriaHASH(string nombre, string categoria)
     hashnode n1 = new productosPorCategorias;
     hashnode n2;
 
-    n1->nombre = nombre;
+    n1->ID = nombre;
     n1->categoria = categoria;
     n1->next = NULL;
     ascii = stringtokey(categoria);
@@ -986,21 +986,16 @@ int buscarnodo(string nName)
     return -1;
 }
 
-void ImprimirLista(hashnode n)
+void ImprimirLista(hashnode n, struct productos producto[])
 {
     for (hashnode n1 = n; n1 != NULL; n1 = n1->next)
     {
-        cout << "[" << n1->nombre << "]";
+        idTranslate(n1->ID,cantidadObjetos,producto);
+        cout << endl;
     }
 }
 
-void ImprimirTabla()
-{
-    for (int i = 0; i < tablesize; i++)
-    {
-        ImprimirLista(HashTable[i]);
-    }
-}
+
 
 void IniciarTabla()
 {
