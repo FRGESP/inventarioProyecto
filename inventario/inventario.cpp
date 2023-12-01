@@ -653,7 +653,6 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
             break;
         case 2:
             cout << endl << "Estos son los productos actuales:" << endl << endl;
-            mostrarProductos(producto, cantidadObjetos);
             indice= consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
             cout << endl << "Ingrese el nuevo nombre: ";
             getline(cin, auxiliar);
@@ -667,50 +666,44 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
 
         case 3:
             cout << endl << "Estos son los productos actuales:" << endl << endl;
-            mostrarProductos(producto, cantidadObjetos);
-            cout << endl << "Ingrese el numero del producto que desea cambiar: ";
-            cin >> indice;
+            indice = consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
             cout << endl << "Ingrese el nuevo precio: ";
             cin >> aux;
-            nuevo->antiguo = to_string(producto[indice - 1].precio);  // Cambiar aquí a to_string
-            producto[indice - 1].precio = aux;
+            nuevo->antiguo = to_string(producto[indice].precio);  // Cambiar aquí a to_string
+            producto[indice].precio = aux;
             nuevo->nuevo = to_string(aux);
             nuevo->tipo = "Cambio de Precio";
-            nuevo->producto = producto[indice - 1].nombre;
+            nuevo->producto = producto[indice].nombre;
             hecho = true;
             break;
         case 4:
             cout << endl << "Estos son los productos actuales:" << endl << endl;
-            mostrarProductos(producto, cantidadObjetos);
-            cout << endl << "Ingrese el número del producto que desea cambiar: ";
-            cin >> indice;
+            indice = consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
             cout << endl << "La cantidad a agregar: ";
             cin >> aux;
-            operacion = producto[indice - 1].cantidad + aux;
-            nuevo->antiguo = to_string(producto[indice - 1].cantidad);
-            producto[indice - 1].cantidad = operacion;
+            operacion = producto[indice].cantidad + aux;
+            nuevo->antiguo = to_string(producto[indice].cantidad);
+            producto[indice].cantidad = operacion;
             nuevo->nuevo = to_string(operacion);
             nuevo->tipo = "Entrada";
-            nuevo->producto = producto[indice - 1].nombre;
+            nuevo->producto = producto[indice].nombre;
             hecho = true;
             break;
         case 5:
             do
             {
                 cout << endl << "Estos son los productos actuales:" << endl << endl;
-                mostrarProductos(producto, cantidadObjetos);
-                cout << endl << "Ingrese el número del producto que desea cambiar: ";
-                cin >> indice;
+                indice = consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
                 cout << endl << "La cantidad a quitar: ";
                 cin >> aux2;
-                operacion = producto[indice - 1].cantidad - aux2;
+                operacion = producto[indice].cantidad - aux2;
                 if (operacion >= 0)
                 {
-                    nuevo->antiguo = to_string(producto[indice - 1].cantidad);
-                    producto[indice - 1].cantidad = operacion;
+                    nuevo->antiguo = to_string(producto[indice].cantidad);
+                    producto[indice].cantidad = operacion;
                     nuevo->nuevo = to_string(operacion);
                     nuevo->tipo = "Salida";
-                    nuevo->producto = producto[indice - 1].nombre;
+                    nuevo->producto = producto[indice].nombre;
                     ban = true;
                 }
                 else
@@ -723,15 +716,13 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
             break;
         case 6:
             cout << endl << "Estos son los productos actuales:" << endl << endl;
-            mostrarProductos(producto, cantidadObjetos);
-            cout << endl << "Ingrese el numero del producto que desea eliminar: ";
-            cin >> indice;
+            indice = consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
             cin.ignore();
-            nuevo->antiguo = producto[indice - 1].nombre;
+            nuevo->antiguo = producto[indice].nombre;
             nuevo->nuevo = "Eliminado";
-            nuevo->producto = producto[indice - 1].nombre;
+            nuevo->producto = producto[indice].nombre;
             nuevo->tipo = "Eliminar Objeto";
-            eliminarProducto(producto[indice - 1].id, producto, cantidadObjetos);
+            eliminarProducto(producto[indice].id, producto, cantidadObjetos);
             hecho = true;
             break;
         case 7:
