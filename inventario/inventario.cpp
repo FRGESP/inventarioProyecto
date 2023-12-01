@@ -11,6 +11,7 @@ using namespace std;
 
 int cantidadObjetos = 5;
 int cantidadCategorias = 3;
+int ayudaGlobal;
 vector<string> categorias;
 
 
@@ -68,6 +69,13 @@ struct nodo* crearNodo(string x, int pr) {
     return nuevoNodo;
 };
 
+//Pilas
+struct necesitanRestock
+{
+    string ID;
+    necesitanRestock* a;
+
+}*cima, * adelante;
 
 //Datos de los productos
 struct productos
@@ -114,7 +122,14 @@ void agregarCategoriaHASH(string nombre, string categoria);
 int buscarnodo(string nName);
 void ImprimirLista(hashnode n, struct productos producto[]);
 void IniciarTabla();
-void ImprimirTabla();
+void ingresarProductoRestock(string ID);
+void sacarProductosRestock();
+void imprimirProductosRestock();
+int restock(struct productos producto[]);
+int IDtoIndex(string ident, int cantidad, struct productos producto[]);
+
+
+
 
 hashnode HashTable[1000];
 int tablesize = 20;
@@ -145,7 +160,7 @@ int main()
     string categoria;
     cargaDatos(stock, caduc);
 
-   
+
     do
     {
         menu();
@@ -543,6 +558,7 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
         cout << " 4. Dar Entrada" << endl;
         cout << " 5. Dar salida" << endl;
         cout << " 6. Eliminar Producto" << endl;
+        cout << " 7. Reabastecimiento" << endl;
         cout << "---------------------------------------------------" << endl;
         cout << "Ingrese el número de la opción deseada: ";
         cin >> op;
@@ -644,6 +660,27 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
             eliminarProducto(producto[indice - 1].id, producto, cantidadObjetos);
             hecho = true;
             break;
+        case 7:
+            
+            aux=restock(producto);
+            if (aux == -1)
+            {
+                nuevo->antiguo = "Sin elementos por reabastecer";
+                nuevo->nuevo = "Sin elementos por reabastecer";
+                nuevo->producto = producto[ayudaGlobal].nombre;
+                nuevo->tipo = "Reabastecimiento";
+                hecho = true;
+            }
+            else
+            {
+                nuevo->antiguo = to_string(aux);
+                nuevo->nuevo = to_string(producto[ayudaGlobal].cantidad);
+                nuevo->producto = producto[ayudaGlobal].nombre;
+                nuevo->tipo = "Reabastecimiento";
+                hecho = true;
+            }
+            system("pause");
+            system("cls");
         default:
             cout << "Opcion no valida" << endl;
             break;
@@ -754,6 +791,48 @@ void idTranslate(string ident,int cantidad, struct productos producto[])
     }
 }
 
+//string buscarCadenaPorID(string ident, int cantidad, string caracteristica, struct productos producto[])
+//{
+//    int i,cont;
+//    bool band = false;
+//    for (i = 0; i < cantidad; i++)
+//    {
+//        if (producto[i].id == ident)
+//        {
+//            cont = i;
+//            band = true;
+//            break;
+//        }
+//    }
+//    if (band == false)
+//    {
+//        cout << "El producto no se encuentra en el inventario" << endl;
+//        return;
+//    }
+//    else if (band == true)
+//    {
+//        if (caracteristica == "nombre")
+//        {
+//            return producto[cont].nombre;
+//        }else if (caracteristica == "categoria")
+//        {
+//            return producto[cont].categoria;
+//        }
+//    }
+//}
+
+int IDtoIndex(string ident, int cantidad, struct productos producto[])
+{
+    int i,cont;
+    for (i = 0; i < cantidad; i++)
+    {
+        if (producto[i].id == ident)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
 bool buscarCodigo(string ident, int cantidad, struct productos producto[])
 {
     int i;
@@ -995,12 +1074,93 @@ void ImprimirLista(hashnode n, struct productos producto[])
     }
 }
 
-
-
 void IniciarTabla()
 {
     for (int i = 0; i < tablesize; i++)
     {
         HashTable[i] = NULL;
     }
+}
+
+//Pilas
+
+void ingresarProductoRestock(string ID)
+{
+    if (!cima)
+    {
+        cima = new necesitanRestock;
+        cima->ID = ID;
+        cima->a = NULL;
+        return;
+    }
+    adelante = new necesitanRestock;
+    adelante->ID = ID;
+    adelante->a = cima;
+    cima = adelante;
+}
+
+void sacarProductosRestock()
+{
+    if (!cima)
+    {
+        cout << "\n\nSin objetos por reabastecer";
+        return;
+    }
+    adelante = new(necesitanRestock);
+    adelante = cima;
+    cima = adelante->a;
+    delete(adelante);
+}
+void imprimirProductosRestock()
+{
+    int i, ca = 0;
+    adelante = cima;
+    while (adelante)
+    {
+        cout << endl;
+        idTranslate(adelante->ID,cantidadObjetos,stock);
+        adelante = adelante->a;
+    }
+}
+int restock(struct productos producto[])
+{
+    int valor, i,op,index,aux,antiguo,cont=0;
+    string cadena;
+
+
+    cout << "Ingrese la cantidad de valor minimo de unidades: ";
+    cin >> valor;
+
+    for (i = 0; i < cantidadObjetos; i++)
+    {
+        if (producto[i].cantidad <= valor)
+        {
+            ingresarProductoRestock(producto[i].id);
+            cont++;
+        }
+    }
+    if (cont == 0)
+    {
+        cout << "No existen productos que se necesiten reabastecer" << endl;
+        return -1;
+    }
+    else
+    {
+        system("cls");
+        cout << "Estos son los productos con menos de " << valor << " unidades" << endl << endl;
+        imprimirProductosRestock();
+
+        index = IDtoIndex(cima->ID, cantidadObjetos, producto);
+        ayudaGlobal = index;
+        cout << endl<<endl<<"Se hara reabastecimiento del producto " << producto[index].nombre << " que tiene solo " << producto[index].cantidad << " unidades"<<endl<<endl;
+        cout << "Ingrese la cantidad a agregar del producto: ";
+        cin >> aux;
+        cin.ignore();
+        antiguo = producto[index].cantidad;
+        producto[index].cantidad += aux;
+        cout << endl << "Ahora el producto cuenta con: " << producto[index].cantidad << " unidades "<<endl;
+        sacarProductosRestock();
+        return antiguo;
+    }
+    
 }
