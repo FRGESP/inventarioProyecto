@@ -13,6 +13,8 @@ int cantidadObjetos = 5;
 int cantidadCategorias = 3;
 vector<string> categorias;
 
+
+
 //Listas simples
 struct clientes
 {
@@ -33,6 +35,17 @@ struct historialMovimientos
     historialMovimientos* siguiente;
     historialMovimientos* atras;
 }*primeroh, *ultimoh;
+
+//Hashing
+struct productosPorCategorias
+{
+    string nombre;
+    string categoria;
+    struct productosPorCategorias* next;
+};
+
+typedef productosPorCategorias* hashnode;
+
 
 //Necesarias para la cola de prioridad
 struct nodo {
@@ -66,20 +79,13 @@ struct productos
     string id;
 }typedef node;
 
-////Hashing
-//struct productosPorCategorias
-//{
-//    string nombre;
-//    string categoria;
-//    struct productosPorCategorias* next;
-//};
-//
-//typedef productosPorCategorias* node;
+
+
 
 struct productos stock[MAX];
 
-//node HashTable[10];
-//int tablesize = 20;
+
+
 
 void cargaDatos(struct productos[],struct caducidad &caduc);
 void agregarProductos(struct productos[], struct caducidad& caduc);
@@ -103,27 +109,15 @@ void mostrarListaPU();
 void mostrarListaUP();
 void mostrarClientes();
 string obtenerHora();
-//int stringtokey(string name);
-//void agregarCategoriaHASH(string nombre, string categoria);
-//int buscarnodo(string nName);
-//void ImprimirLista(node n);
-//void IniciarTabla();
+int stringtokey(string name);
+void agregarCategoriaHASH(string nombre, string categoria);
+int buscarnodo(string nName);
+void ImprimirLista(hashnode n);
+void IniciarTabla();
+void ImprimirTabla();
 
-
-//void menu()
-//{
-//    cout << endl << "---------------------------------------------------" << endl;
-//    cout << "               LISTAS ORDENADAS C++           " << endl;
-//    cout << "---------------------------------------------------" << endl;
-//    cout << " Seleccione una opción:" << endl;
-//    cout << " 1. Insertar" << endl;
-//    cout << " 2. Modificar" << endl;
-//    cout << " 3. Eliminar" << endl;
-//    cout << " 4. Mostrar" << endl;
-//    cout << " 5. Salir" << endl;
-//    cout << "---------------------------------------------------" << endl;
-//    cout << "Ingrese el número de la opción deseada: ";
-//}
+hashnode HashTable[1000];
+int tablesize = 20;
 
 void menu()
 {
@@ -151,58 +145,7 @@ int main()
     string categoria;
     cargaDatos(stock, caduc);
 
-    
-
-    
-   /* mostrarCategorias();*/
-
-   /* do
-    {
-        cout << "1. Agregar 2.mostrarCaduc, 3.Salir"<<endl;
-        cin >> op;
-        cin.ignore();
-
-        switch (op)
-        {
-        case 1:
-            agregarProductos(stock, caduc);
-            break;
-        case 2:
-            mostrarCaducidad(caduc, cantidadObjetos, stock);
-            break;
-        default:
-            break;
-            system("cls");
-        }
-    } while (op != 3);*/
-    //do
-    //{
-    //    menu();
-    //    cin >> op;
-    //    cin.ignore();
-    //    switch (op)
-    //    {
-    //    case 1:
-    //        agregarCliente();
-    //        break;
-    //    //case 2:
-    //    //    modificarNodo();
-    //    //    break;
-    //    case 3:
-    //        eliminarCliente();
-    //        break;
-    //    case 4:
-    //        mostrarClientes();
-    //        break;
-    //    case 5:
-    //        break;
-    //    default:
-    //        cout << endl << "Opcion no valida";
-
-    //    }
-    //} while (op != 5);
-    //idTranslate("001", cantidadObjetos, stock);
-
+   
     do
     {
         menu();
@@ -234,20 +177,24 @@ int main()
             system("pause");
             break;
         case 6:
-            /*mostrarCategorias();
+            /*mostrarCategorias();*/
+            mostrarCategorias();
             cout << "\nSeleccione la categoria deseada: ";
             cin >> aux;
+            cin.ignore();
             key = buscarnodo(categorias[aux-1]);
             if (key == -1)
             {
-                cout << "El nombre no se encuentra en la tabla" << endl;
+                cout << "La categoria no se encuentra" << endl;
             }
             else
             {
-                cout << "El nombre se encuentra en la tabla" << endl;
-                cout << "HashTable[" << key << "]" << endl;
+                system("cls");
+                cout << "Se muestran los productos de la categoria "<< categorias[aux - 1] << endl<<endl;
                 ImprimirLista(HashTable[key]);
-            }*/
+                cout << endl << endl;
+            }
+            system("pause");
             break;
         case 7:
             break;
@@ -263,7 +210,6 @@ int main()
 
 void cargaDatos(struct productos objeto[], struct caducidad& caduc)
 {
-    //IniciarTabla();
     string nombre, categoria;
 
     objeto[0].nombre = "Coca cola";
@@ -272,9 +218,9 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
     agregarCaducidad(caduc, "001", 20231212);
     objeto[0].id = "001";
     objeto[0].precio = 15;
-    //nombre = objeto[1].nombre;
-    //categoria = objeto[1].categoria;
-    //agregarCategoriaHASH(nombre, categoria);
+    nombre = objeto[0].nombre;
+    categoria = objeto[0].categoria;
+    agregarCategoriaHASH(nombre, categoria);
 
     objeto[1].nombre = "Desodorante";
     objeto[1].categoria = "Cuidado Personal";
@@ -282,9 +228,9 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
     agregarCaducidad(caduc,"002", 999999999);
     objeto[1].id = "002";
     objeto[1].precio = 22;
-    //nombre = objeto[1].nombre;
-    //categoria = objeto[1].categoria;
-    //agregarCategoriaHASH(nombre, categoria);
+    nombre = objeto[1].nombre;
+    categoria = objeto[1].categoria;
+    agregarCategoriaHASH(nombre, categoria);
 
 
     objeto[2].nombre = "Shampoo";
@@ -293,9 +239,9 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
     agregarCaducidad(caduc, "003", 999999999);
     objeto[2].id = "003";
     objeto[2].precio = 35;
-    //nombre = objeto[2].nombre;
-    //categoria = objeto[2].categoria;
-    //agregarCategoriaHASH(nombre, categoria);
+    nombre = objeto[2].nombre;
+    categoria = objeto[2].categoria;
+    agregarCategoriaHASH(nombre, categoria);
 
     objeto[3].nombre = "Pan de caja";
     objeto[3].categoria = "Alimentos";
@@ -303,9 +249,9 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
     agregarCaducidad(caduc, "004", 20231412);
     objeto[3].id = "004";
     objeto[3].precio = 24;
-    //nombre = objeto[3].nombre;
-    //categoria = objeto[3].categoria;
-    //agregarCategoriaHASH(nombre, categoria);
+    nombre = objeto[3].nombre;
+    categoria = objeto[3].categoria;
+    agregarCategoriaHASH(nombre, categoria);
 
     objeto[4].nombre = "Galletas";
     objeto[4].categoria = "Alimentos";
@@ -313,9 +259,9 @@ void cargaDatos(struct productos objeto[], struct caducidad& caduc)
     agregarCaducidad(caduc, "005", 20241001);
     objeto[4].id = "005";
     objeto[4].precio = 11;
-    //nombre = objeto[4].nombre;
-    //categoria = objeto[4].categoria;
-    //agregarCategoriaHASH(nombre, categoria);
+    nombre = objeto[4].nombre;
+    categoria = objeto[4].categoria;
+    agregarCategoriaHASH(nombre, categoria);
 
     categorias.push_back("Bebidas");
     categorias.push_back("Cuidado Personal");
@@ -353,7 +299,8 @@ void agregarProductos(struct productos objeto[], struct caducidad &caduc)
             cin >> aux;
             cin.ignore();
             objeto[cantidadObjetos].categoria = categorias[aux - 1];
-            /*agregarCategoriaHASH(objeto[cantidadObjetos].nombre, objeto[cantidadObjetos].categoria);*/
+            
+            agregarCategoriaHASH(objeto[cantidadObjetos].nombre, objeto[cantidadObjetos].categoria);
             break;
         }
         else if (op == 2)
@@ -362,7 +309,7 @@ void agregarProductos(struct productos objeto[], struct caducidad &caduc)
             getline(cin, cadenaAux);
             categorias.push_back(cadenaAux);
             objeto[cantidadObjetos].categoria = cadenaAux;
-            /*agregarCategoriaHASH(objeto[cantidadObjetos].nombre, objeto[cantidadObjetos].categoria);*/
+            agregarCategoriaHASH(objeto[cantidadObjetos].nombre, objeto[cantidadObjetos].categoria);
             cantidadCategorias++;
             break;
         }
@@ -981,84 +928,84 @@ string obtenerHora()
     return formattedTime;
 }
 
-//int stringtokey(string name)
-//{
-//    int s = 0;
-//    int j = 1;
-//
-//    for (char c : name)
-//    {
-//        s = s + (c * j);
-//        j++;
-//    }
-//    return s;
-//}
+int stringtokey(string name)
+{
+    int s = 0;
+    int j = 1;
 
-//void agregarCategoriaHASH(string nombre, string categoria)
-//{
-//    int ascii, key;
-//    node n1 = new productosPorCategorias;
-//    node n2;
-//
-//    n1->nombre = nombre;
-//    n1->categoria = categoria;
-//    n1->next = NULL;
-//    ascii = stringtokey(categoria);
-//    key = ascii % tablesize;
-//
-//    if (HashTable[key] == NULL)
-//    {
-//        HashTable[key] = n1;
-//    }
-//    else
-//    {
-//        n2 = HashTable[key];
-//        while (n2->next != nullptr)
-//        {
-//            n2 = n2->next;
-//        }
-//        n2->next = n1;
-//    }
-//}
-//
-//int buscarnodo(string nName)
-//{
-//    int ascii = stringtokey(nName);
-//    int key = ascii % tablesize;
-//    node n = HashTable[key];
-//
-//    while (n != NULL)
-//    {
-//        if (n->categoria == nName)
-//        {
-//            return key;
-//        }
-//        n = n->next;
-//    }
-//
-//    return -1;
-//}
-//
-//void ImprimirLista(node n)
-//{
-//    for (node n1 = n; n1 != NULL; n1 = n1->next)
-//    {
-//        cout << "[" << n1->nombre << "]";
-//    }
-//}
-//
-//void ImprimirTabla()
-//{
-//    for (int i = 0; i < tablesize; i++)
-//    {
-//        ImprimirLista(HashTable[i]);
-//    }
-//}
-//
-//void IniciarTabla()
-//{
-//    for (int i = 0; i < tablesize; i++)
-//    {
-//        HashTable[i] = NULL;
-//    }
-//}
+    for (char c : name)
+    {
+        s = s + (c * j);
+        j++;
+    }
+    return s;
+}
+
+void agregarCategoriaHASH(string nombre, string categoria)
+{
+    int ascii, key;
+    hashnode n1 = new productosPorCategorias;
+    hashnode n2;
+
+    n1->nombre = nombre;
+    n1->categoria = categoria;
+    n1->next = NULL;
+    ascii = stringtokey(categoria);
+    key = ascii % tablesize;
+
+    if (HashTable[key] == NULL)
+    {
+        HashTable[key] = n1;
+    }
+    else
+    {
+        n2 = HashTable[key];
+        while (n2->next != nullptr)
+        {
+            n2 = n2->next;
+        }
+        n2->next = n1;
+    }
+}
+
+int buscarnodo(string nName)
+{
+    int ascii = stringtokey(nName);
+    int key = ascii % tablesize;
+    hashnode n = HashTable[key];
+
+    while (n != NULL)
+    {
+        if (n->categoria == nName)
+        {
+            return key;
+        }
+        n = n->next;
+    }
+
+    return -1;
+}
+
+void ImprimirLista(hashnode n)
+{
+    for (hashnode n1 = n; n1 != NULL; n1 = n1->next)
+    {
+        cout << "[" << n1->nombre << "]";
+    }
+}
+
+void ImprimirTabla()
+{
+    for (int i = 0; i < tablesize; i++)
+    {
+        ImprimirLista(HashTable[i]);
+    }
+}
+
+void IniciarTabla()
+{
+    for (int i = 0; i < tablesize; i++)
+    {
+        HashTable[i] = NULL;
+    }
+}
