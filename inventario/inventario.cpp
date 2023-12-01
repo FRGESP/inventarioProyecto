@@ -12,6 +12,7 @@ using namespace std;
 int cantidadObjetos = 5;
 int cantidadCategorias = 3;
 int ayudaGlobal;
+string stringGlobal;
 vector<string> categorias;
 
 
@@ -127,9 +128,7 @@ void sacarProductosRestock();
 void imprimirProductosRestock();
 int restock(struct productos producto[]);
 int IDtoIndex(string ident, int cantidad, struct productos producto[]);
-
-
-
+void administracionCliente();
 
 hashnode HashTable[1000];
 int tablesize = 20;
@@ -141,7 +140,7 @@ void menu()
     cout << "---------------------------------------------------" << endl;
     cout << " Seleccione una opcion:" << endl;
     cout << " 1. Hacer Movimiento" << endl;
-    cout << " 2. Agregar producto" << endl;
+    cout << " 2. Clientes" << endl;
     cout << " 3. Mostrar caducidades" << endl;
     cout << " 4. Movimientos del mas antiguo al mas actual" << endl;
     cout << " 5. Movimientos del mas actual al mas antiguo" << endl;
@@ -174,7 +173,7 @@ int main()
             break;
         case 2:
             system("cls");
-            agregarProductos(stock, caduc);
+            administracionCliente();
             break;
         case 3:
             system("cls");
@@ -449,9 +448,9 @@ void agregarCaducidad(struct caducidad& q, string c, int pr) {
 void agregarCliente()
 {
     clientes* nuevo = new clientes();
-    cout << "Inserte el nombre del cliente; ";
+    cout << "Inserte el nombre del cliente: ";
     getline(cin, nuevo->nombreCliente);
-    cout << "Inserte la direccion del cliente; ";
+    cout << "Inserte la direccion del cliente: ";
     getline(cin, nuevo->direccion);
 
     if (primero == NULL)
@@ -484,56 +483,113 @@ void mostrarClientes()
     }
     else
     {
-        cout << "La lista esta vacia ...";
+        cout << "No existen clientes registrados";
     }
 }
 
+
 void eliminarCliente()
 {
-    clientes* actual = new clientes();
-    clientes* anterior = new clientes();
-    actual = primero;
-    anterior = NULL;
-    bool encontrado = false;
-    int nodoBuscar = 0;
-    string clienteBuscar;
-
-    cout << "Ingrese el nombre del Cliente a eliminar: ";
-    getline(cin, clienteBuscar);
-
     if (primero != NULL)
     {
-        while (actual != NULL && encontrado != true)
+        clientes* actual = primero;
+        clientes* anterior = NULL;
+        string clienteBuscar;
+
+        cout << "Ingrese el nombre del cliente a eliminar: ";
+        getline(cin, clienteBuscar);
+
+        bool encontrado = false;
+
+        while (actual != NULL && !encontrado)
         {
             if (actual->nombreCliente == clienteBuscar)
             {
-                cout << "\nEl Cliente " << clienteBuscar << " existe en la lista" << endl;
-                if (actual == primero)//eliminar el primer nodo
+                cout << "\nEl cliente " << clienteBuscar << " existe en la lista" << endl;
+
+                if (actual == primero) // Eliminar el primer nodo
                 {
-                    primero = primero->siguiente;
+                    primero = actual->siguiente;
                 }
-                else if (actual == ultimo)//elimar el ultimo nodo
+                else if (actual == ultimo) // Eliminar el último nodo
                 {
                     anterior->siguiente = NULL;
                     ultimo = anterior;
                 }
-                else//eliminar cualquier nodo
+                else // Eliminar cualquier otro nodo
                 {
                     anterior->siguiente = actual->siguiente;
                 }
+
+                delete actual;
                 cout << "Cliente " << clienteBuscar << " eliminado" << endl;
                 encontrado = true;
+            }
+            else
+            {
+                anterior = actual;
+                actual = actual->siguiente;
             }
         }
 
         if (!encontrado)
-            cout << endl << "Elemento no encotrado";
+            cout << endl << "Elemento no encontrado";
     }
     else
     {
-        cout << "La lista esta vacia ...";
+        cout << "No hay clientes registrados" << endl;
     }
 }
+
+void administracionCliente()
+{
+    bool hecho = false;
+    int op;
+    do
+    {
+        cout << "Ingrese el tipo de movimiento que desea realizar: ";
+        cout << endl << "---------------------------------------------------" << endl;
+        cout << "               Administracion clientes           " << endl;
+        cout << "---------------------------------------------------" << endl;
+        cout << " Seleccione una opción:" << endl;
+        cout << " 1. Agregar cliente" << endl;
+        cout << " 2. Mostrar CLientes" << endl;
+        cout << " 3. Eliminar Clientes" << endl;
+        cout << "---------------------------------------------------" << endl;
+        cout << "Ingrese el número de la opción deseada: ";
+        cin >> op;
+        cin.ignore();
+        switch (op)
+        {
+        case 1:
+            system("cls");
+            agregarCliente();
+            system("pause");
+            system("cls");
+            hecho = true;
+            break;
+        case 2:
+            system("cls");
+            mostrarClientes();
+            system("pause");
+            system("cls");
+            hecho = true;
+            break;
+        case 3:
+            system("cls");
+            eliminarCliente();
+            system("pause");
+            system("cls");
+            hecho = true;
+            break;
+        default:
+            cout << "Opcion no valida" << endl;
+            break;
+        }
+    } while (hecho == false);
+} 
+    
+
 
 void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
 {
@@ -665,17 +721,23 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
             aux=restock(producto);
             if (aux == -1)
             {
+                auxiliar = "Se hizo consulta por productos con menos de ";
+                auxiliar.append(to_string(ayudaGlobal));
+                auxiliar.append(" unidades");
                 nuevo->antiguo = "Sin elementos por reabastecer";
                 nuevo->nuevo = "Sin elementos por reabastecer";
-                nuevo->producto = producto[ayudaGlobal].nombre;
+                nuevo->producto = auxiliar;
                 nuevo->tipo = "Reabastecimiento";
                 hecho = true;
             }
             else
             {
-                nuevo->antiguo = to_string(aux);
-                nuevo->nuevo = to_string(producto[ayudaGlobal].cantidad);
-                nuevo->producto = producto[ayudaGlobal].nombre;
+                auxiliar="Se reabastecio un total de ";
+                auxiliar.append(to_string(aux));
+                auxiliar.append(" unidades");
+                nuevo->antiguo = stringGlobal;
+                nuevo->nuevo = auxiliar;
+                nuevo->producto = "Varios";
                 nuevo->tipo = "Reabastecimiento";
                 hecho = true;
             }
@@ -791,35 +853,6 @@ void idTranslate(string ident,int cantidad, struct productos producto[])
     }
 }
 
-//string buscarCadenaPorID(string ident, int cantidad, string caracteristica, struct productos producto[])
-//{
-//    int i,cont;
-//    bool band = false;
-//    for (i = 0; i < cantidad; i++)
-//    {
-//        if (producto[i].id == ident)
-//        {
-//            cont = i;
-//            band = true;
-//            break;
-//        }
-//    }
-//    if (band == false)
-//    {
-//        cout << "El producto no se encuentra en el inventario" << endl;
-//        return;
-//    }
-//    else if (band == true)
-//    {
-//        if (caracteristica == "nombre")
-//        {
-//            return producto[cont].nombre;
-//        }else if (caracteristica == "categoria")
-//        {
-//            return producto[cont].categoria;
-//        }
-//    }
-//}
 
 int IDtoIndex(string ident, int cantidad, struct productos producto[])
 {
@@ -1124,13 +1157,15 @@ void imprimirProductosRestock()
 }
 int restock(struct productos producto[])
 {
-    int valor, i,op,index,aux,antiguo,cont=0;
+    int valor, i,suma=0,index,aux,cont=0;
     string cadena;
 
 
     cout << "Ingrese la cantidad de valor minimo de unidades: ";
     cin >> valor;
-
+    stringGlobal = "Se hizo reabastecimiento a productos con menos de ";
+    stringGlobal.append(to_string(valor));
+    stringGlobal.append(" unidades");
     for (i = 0; i < cantidadObjetos; i++)
     {
         if (producto[i].cantidad <= valor)
@@ -1142,6 +1177,7 @@ int restock(struct productos producto[])
     if (cont == 0)
     {
         cout << "No existen productos que se necesiten reabastecer" << endl;
+        ayudaGlobal = valor;
         return -1;
     }
     else
@@ -1150,17 +1186,21 @@ int restock(struct productos producto[])
         cout << "Estos son los productos con menos de " << valor << " unidades" << endl << endl;
         imprimirProductosRestock();
 
-        index = IDtoIndex(cima->ID, cantidadObjetos, producto);
-        ayudaGlobal = index;
-        cout << endl<<endl<<"Se hara reabastecimiento del producto " << producto[index].nombre << " que tiene solo " << producto[index].cantidad << " unidades"<<endl<<endl;
-        cout << "Ingrese la cantidad a agregar del producto: ";
-        cin >> aux;
-        cin.ignore();
-        antiguo = producto[index].cantidad;
-        producto[index].cantidad += aux;
-        cout << endl << "Ahora el producto cuenta con: " << producto[index].cantidad << " unidades "<<endl;
-        sacarProductosRestock();
-        return antiguo;
+        while (cont > 0)
+        {
+            index = IDtoIndex(cima->ID, cantidadObjetos, producto);
+            ayudaGlobal = index;
+            cout << endl << endl << "Se hara reabastecimiento del producto " << producto[index].nombre << " que tiene solo " << producto[index].cantidad << " unidades" << endl << endl;
+            cout << "Ingrese la cantidad a agregar del producto: ";
+            cin >> aux;
+            cin.ignore();
+            producto[index].cantidad += aux;
+            cout << endl << "Ahora el producto cuenta con: " << producto[index].cantidad << " unidades " << endl;
+            sacarProductosRestock();
+            cont--;
+            suma += aux;
+        }
+        return suma;
     }
     
 }
