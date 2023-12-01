@@ -78,13 +78,21 @@ struct necesitanRestock
 
 }*cima, * adelante;
 
-//Para busqueda binaria
+//Para busqueda binaria y ordenamiento por insercion
 union IDints {
     int idEntero;
 };
 
 union IDints codigosToInts[MAX];
 int indiceUnion = 0;
+
+struct IdAndInt
+{
+    int entero;
+    string ID;
+};
+
+struct IdAndInt IDyEntero[MAX];
 
 //Datos de los productos
 struct productos
@@ -141,6 +149,10 @@ int buscarIndexPorID(int cantidad, union IDints a[], string ID);
 void codigosAenteros(union IDints arreglo[], struct productos producto[]);
 void quicksort(union IDints arreglo[], int primero, int ultimo);
 int consultaIdExiste(int cantidad, union IDints a[], string ID);
+void insercion(struct IdAndInt numeros[]);
+void agregarPreciosUnion(struct IdAndInt numeros[]);
+void mostrarMenorAMayor(struct IdAndInt numeros[]);
+
 
 
 hashnode HashTable[1000];
@@ -172,6 +184,8 @@ int main()
     string categoria;
     cargaDatos(stock, caduc);
 
+    mostrarMenorAMayor(IDyEntero);
+    system("pause");
     do
     {
         menu();
@@ -1280,4 +1294,45 @@ int consultaIdExiste(int cantidad, union IDints a[], string ID)
         }
     } while (ban == false);
     return indice;
+}
+
+void insercion(struct IdAndInt numeros[])
+{
+    int i, pos;
+    struct IdAndInt aux;
+    for (i = 1; i < cantidadObjetos; i++)
+    {
+        aux = numeros[i];
+        pos = i - 1;
+
+        while (pos >= 0 && numeros[pos].entero > aux.entero)
+        {
+            numeros[pos + 1] = numeros[pos];
+            pos = pos - 1;
+        }
+        numeros[pos + 1] = aux;
+    }
+}
+
+void agregarPreciosUnion(struct IdAndInt numeros[])
+{
+    for (int i = 0; i < cantidadObjetos; i++)
+    {
+        numeros[i].entero = stock[i].precio;
+        numeros[i].ID = stock[i].id;
+    }
+}
+
+void mostrarMenorAMayor(struct IdAndInt numeros[])
+{
+    agregarPreciosUnion(numeros);
+    insercion(numeros);
+
+    cout << "Mostrar elementos del mas barato al mas caro:" << endl << endl;
+
+    for (int i = 0; i < cantidadObjetos; i++)
+    {
+        idTranslate(numeros[i].ID,cantidadObjetos,stock);
+        cout << endl << endl;
+    }
 }
