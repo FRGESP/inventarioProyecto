@@ -204,28 +204,74 @@ void menucola();
 void buscarProvedor(string provedorBuscar);
 int verificarExistenciaProvedor(string provedorBuscar);
 void administracionCreditos(Cola& cola);
+void adminitrarMovimientos(struct caducidad caduc);
+void administracionVisualuzacionDatos(struct caducidad caduc);
+
 
 hashnode HashTable[1000];
 int tablesize = 20;
 
+//void menu()
+//{
+//    cout << endl << "---------------------------------------------------" << endl;
+//    cout << "               LISTAS ORDENADAS C++           " << endl;
+//    cout << "---------------------------------------------------" << endl;
+//    cout << " Seleccione una opcion:" << endl;
+//    cout << " 1. Hacer Movimiento" << endl;
+//    cout << " 2. Clientes" << endl;
+//    cout << " 3. Mostrar caducidades" << endl;
+//    cout << " 4. Movimientos del mas antiguo al mas actual" << endl;
+//    cout << " 5. Movimientos del mas actual al mas antiguo" << endl;
+//    cout << " 6. Mostrar Categorias" << endl;
+//    cout << " 7. Mostrar Elementos del mas caro al mas barato" << endl;
+//    cout << " 8. Mostrar Elementos del mas barato al mas caro" << endl;
+//    cout << " 9. Creditos" << endl;
+//    cout << " 7. Salir" << endl;
+//    cout << "---------------------------------------------------" << endl;
+//    cout << "Ingrese el número de la opción deseada: ";
+//}
+
 void menu()
 {
     cout << endl << "---------------------------------------------------" << endl;
-    cout << "               LISTAS ORDENADAS C++           " << endl;
+    cout << "               INVENTARIO          " << endl;
     cout << "---------------------------------------------------" << endl;
     cout << " Seleccione una opcion:" << endl;
-    cout << " 1. Hacer Movimiento" << endl;
-    cout << " 2. Clientes" << endl;
-    cout << " 3. Mostrar caducidades" << endl;
-    cout << " 4. Movimientos del mas antiguo al mas actual" << endl;
-    cout << " 5. Movimientos del mas actual al mas antiguo" << endl;
-    cout << " 6. Mostrar Categorias" << endl;
-    cout << " 7. Mostrar Elementos del mas caro al mas barato" << endl;
-    cout << " 8. Mostrar Elementos del mas barato al mas caro" << endl;
-    cout << " 9. Creditos" << endl;
-    cout << " 7. Salir" << endl;
+    cout << " 1. Movimiento" << endl;
+    cout << " 2. Visualizacion de productos" << endl;
+    cout << " 3. Provedores" << endl;
+    cout << " 4. Creditos" << endl;
+    cout << " 5. Salir" << endl;
     cout << "---------------------------------------------------" << endl;
-    cout << "Ingrese el número de la opción deseada: ";
+    cout << "Ingrese el número de la opcion deseada: ";
+}
+
+void menuMovimiento()
+{
+    cout << endl << "---------------------------------------------------" << endl;
+    cout << "               Movimiento          " << endl;
+    cout << "---------------------------------------------------" << endl;
+    cout << " Seleccione una opcion:" << endl;
+    cout << " 1. Hacer movimiento en el inventario" << endl;
+    cout << " 2. Movimientos del mas antiguo al mas actual" << endl;
+    cout << " 3. Movimientos del mas actual al mas antiguo" << endl;
+    cout << "---------------------------------------------------" << endl;
+    cout << "Ingrese el número de la opcion deseada: ";
+}
+
+void menuVisualizacionProductos()
+{
+    cout << endl << "---------------------------------------------------" << endl;
+    cout << "               Visualizacion de productos          " << endl;
+    cout << "---------------------------------------------------" << endl;
+    cout << " Seleccione una opcion:" << endl;
+    cout << " 1. Buscar por ID" << endl;
+    cout << " 2. Mostrar productos del mas barato al mas caro" << endl;
+    cout << " 3. Mostrar productos del mas caro al mas barato" << endl;
+    cout << " 4. Mostrar productos por fecha de caducidad" << endl;
+    cout << " 5. Mostrar productos por categoria" << endl;
+    cout << "---------------------------------------------------" << endl;
+    cout << "Ingrese el número de la opcion deseada: ";
 }
 
 int main()
@@ -239,8 +285,37 @@ int main()
     Cola cola;
     inicializarCola(cola);
     
-
     do
+    {
+        menu();
+        cin >> op;
+        cin.ignore();
+        switch (op)
+        {
+        case 1:
+            adminitrarMovimientos(caduc);
+            break;
+        case 2:
+            administracionVisualuzacionDatos(caduc);
+            break;
+        case 3:
+            system("cls");
+            administracionProvedores();
+            break;
+        case 4:
+            system("cls");
+            administracionCreditos(cola);
+            break;
+        case 5:
+            break;
+        default:
+            break;
+        }
+        system("cls");
+    } while (op != 5);
+
+
+    /*do
     {
         menu();
         cin >> op;
@@ -309,9 +384,117 @@ int main()
 
         }
         system("cls");
-    } while (op != 10);
+    } while (op != 10);*/
 
     return 0;
+}
+
+void adminitrarMovimientos(struct caducidad caduc)
+{
+    system("cls");
+    int op,indice;
+    string ID;
+    bool hecho = false;
+    do
+    {
+        menuMovimiento();
+        cin >> op;
+        cin.ignore();
+        switch (op)
+        {
+        case 1:
+            agregarMoviemiento(stock, caduc);
+            hecho = true;
+            break;
+        case 2:
+            mostrarListaPU();
+            system("pause");
+            hecho = true;
+            break;
+        case 3:
+            system("cls");
+            mostrarListaUP();
+            system("pause");
+            hecho = true;
+            break;
+        default:
+            cout << "Opcion no valida"<<endl;
+            system("pause");
+            system("cls");
+            break;
+        }
+    } while (hecho==false);
+    system("cls");
+}
+
+void administracionVisualuzacionDatos(struct caducidad caduc)
+{
+    system("cls");
+    int op,aux,key;
+    string ID;
+    bool hecho = false;
+    do
+    {
+        menuVisualizacionProductos();
+        cin >> op;
+        cin.ignore();
+        switch (op)
+        {
+        case 1:
+            cout << "Ingrese el ID: ";
+            getline(cin, ID);
+            cout << endl;
+            idTranslate(ID,cantidadObjetos,stock);
+            system("pause");
+            hecho = true;
+            break;
+        case 2:
+            system("cls");
+            mostrarMenorAMayor(IDyEntero, "menor");
+            system("pause");
+            hecho = true;
+            break;
+        case 3:
+            system("cls");
+            mostrarMenorAMayor(IDyEntero, "mayor");
+            system("pause");
+            hecho = true;
+            break;
+        case 4:
+            system("cls");
+            mostrarCaducidad(caduc, cantidadObjetos, stock);
+            system("pause");
+            hecho = true;
+            break;
+        case 5:
+            system("cls");
+            mostrarCategorias();
+            cout << "\n\nSeleccione la categoria deseada: ";
+            cin >> aux;
+            key = buscarnodo(categorias[aux - 1]);
+            if (key == -1)
+            {
+                cout << "La categoria no se encuentra" << endl;
+            }
+            else
+            {
+                system("cls");
+                cout << "Se muestran los productos de la categoria " << categorias[aux - 1] << endl << endl;
+                ImprimirLista(HashTable[key], stock);
+                cout << endl << endl;
+            }
+            system("pause");
+            system("cls");
+            hecho = true;
+            break;
+        default:
+            cout << "Opcion no valida" << endl;
+            system("pause");
+            system("cls");
+            break;
+        }
+    } while (hecho == false);
+    system("cls");
 }
 
 void cargaDatos(struct productos objeto[], struct caducidad& caduc)
@@ -495,7 +678,7 @@ void mostrarCaducidad(struct caducidad q, int cantidad, struct productos p[]) {
     struct nodo* aux;
     aux = q.delante;
     string ap;
-    
+    cout << "Mostrando productos por caducidad" << endl;
     while (aux != NULL) {
 
         ap = aux->id;
@@ -1479,7 +1662,6 @@ void mostrarMenorAMayor(struct IdAndInt numeros[], string orden)
     for (int i = 0; i < cantidadObjetos; i++)
     {
         idTranslate(numeros[i].ID, cantidadObjetos, stock);
-        cout << numeros[i].entero << endl;
         cout << endl << endl;
     }
 }
@@ -1738,17 +1920,20 @@ void preOrden(nodoColaSimple* arbol)
 
 void menucola()
 {
-    cout << "\t---------------\n";
-    cout << "Implementacion de una cola" << endl;
-    cout << "1. Registrar nuevo credito\n";
-    cout << "2. Mostrar creditos pendientes\n";
-    cout << "3. Consultar creditos\n";
-    cout << "4. Salir\n";
-    cout << "Ingrese una opcion: ";
+    cout << endl << "---------------------------------------------------" << endl;
+    cout << "               Creditos          " << endl;
+    cout << "---------------------------------------------------" << endl;
+    cout << " Seleccione una opcion:" << endl;
+    cout << " 1. Registrar nuevo credito" << endl;
+    cout << " 2. Mostrar creditos pendientes" << endl;
+    cout << " 3. Consultar creditos" << endl;
+    cout << "---------------------------------------------------" << endl;
+    cout << "Ingrese el número de la opcion deseada: ";
 }
 
 void administracionCreditos(Cola& cola)
 {
+    system("cls");
     int dato, op, pagar,op2=99;
     string x;
     bool hecho=false;
@@ -1763,7 +1948,10 @@ void administracionCreditos(Cola& cola)
         case 1:
             if (primero != NULL)
             {
+                system("cls");
                 encolar(cola);
+                cout << endl << "Credito agregado" << endl;
+                system("pause");
                 return;
             }
             else
@@ -1776,6 +1964,7 @@ void administracionCreditos(Cola& cola)
             hecho = true;
             break;
         case 2:
+            system("cls");
             cout << "\nMostrando creditos pendientes\n";
             if (!colaVacia(cola))
             {
@@ -1783,6 +1972,7 @@ void administracionCreditos(Cola& cola)
                 cout << endl << "Desea marcar como pagado el credito mas antiguo?" << endl;
                 cout << "1. Deseo pagar mi credito" << endl;
                 cout << "2. En otro momento" << endl;
+                cout << "Ingrese la opcion deseada: ";
                 cin >> pagar;
                 if (pagar == 1)
                 {
