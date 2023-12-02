@@ -149,9 +149,11 @@ int buscarIndexPorID(int cantidad, union IDints a[], string ID);
 void codigosAenteros(union IDints arreglo[], struct productos producto[]);
 void quicksort(union IDints arreglo[], int primero, int ultimo);
 int consultaIdExiste(int cantidad, union IDints a[], string ID);
-void insercion(struct IdAndInt numeros[]);
 void agregarPreciosUnion(struct IdAndInt numeros[]);
-void mostrarMenorAMayor(struct IdAndInt numeros[]);
+void mostrarMenorAMayor(struct IdAndInt numeros[], string orden);
+void seleccion(struct IdAndInt numeros[]);
+void insercion(struct IdAndInt numeros[]);
+
 
 
 
@@ -170,6 +172,8 @@ void menu()
     cout << " 4. Movimientos del mas antiguo al mas actual" << endl;
     cout << " 5. Movimientos del mas actual al mas antiguo" << endl;
     cout << " 6. Mostrar Categorias" << endl;
+    cout << " 7. Mostrar Elementos del mas caro al mas barato" << endl;
+    cout << " 8. Mostrar Elementos del mas barato al mas caro" << endl;
     cout << " 7. Salir" << endl;
     cout << "---------------------------------------------------" << endl;
     cout << "Ingrese el número de la opción deseada: ";
@@ -184,8 +188,7 @@ int main()
     string categoria;
     cargaDatos(stock, caduc);
 
-    mostrarMenorAMayor(IDyEntero);
-    system("pause");
+
     do
     {
         menu();
@@ -217,7 +220,6 @@ int main()
             system("pause");
             break;
         case 6:
-            /*mostrarCategorias();*/
             mostrarCategorias();
             cout << "\nSeleccione la categoria deseada: ";
             cin >> aux;
@@ -237,13 +239,23 @@ int main()
             system("pause");
             break;
         case 7:
+            system("cls");
+            mostrarMenorAMayor(IDyEntero, "mayor");
+            system("pause");
+            break;
+        case 8:
+            system("cls");
+            mostrarMenorAMayor(IDyEntero, "menor");
+            system("pause");
+            break;
+        case 9:
             break;
         default:
             cout << endl << "Opcion no valida";
 
         }
         system("cls");
-    } while (op != 7);
+    } while (op != 9);
 
     return 0;
 }
@@ -339,8 +351,6 @@ void agregarProductos(struct productos objeto[], struct caducidad &caduc)
             cin >> aux;
             cin.ignore();
             objeto[cantidadObjetos].categoria = categorias[aux - 1];
-            
-            agregarCategoriaHASH(objeto[cantidadObjetos].nombre, objeto[cantidadObjetos].categoria);
             break;
         }
         else if (op == 2)
@@ -349,7 +359,6 @@ void agregarProductos(struct productos objeto[], struct caducidad &caduc)
             getline(cin, cadenaAux);
             categorias.push_back(cadenaAux);
             objeto[cantidadObjetos].categoria = cadenaAux;
-            agregarCategoriaHASH(objeto[cantidadObjetos].nombre, objeto[cantidadObjetos].categoria);
             cantidadCategorias++;
             break;
         }
@@ -405,6 +414,7 @@ void agregarProductos(struct productos objeto[], struct caducidad &caduc)
     cout << "Ingrese el precio del producto: ";
     cin >> objeto[cantidadObjetos].precio;
     system("cls");
+    agregarCategoriaHASH(objeto[cantidadObjetos].id, objeto[cantidadObjetos].categoria);
     cantidadObjetos++;
     system("cls");
     cout <<"Producto Guardado con extito"<<endl;
@@ -1296,23 +1306,6 @@ int consultaIdExiste(int cantidad, union IDints a[], string ID)
     return indice;
 }
 
-void insercion(struct IdAndInt numeros[])
-{
-    int i, pos;
-    struct IdAndInt aux;
-    for (i = 1; i < cantidadObjetos; i++)
-    {
-        aux = numeros[i];
-        pos = i - 1;
-
-        while (pos >= 0 && numeros[pos].entero > aux.entero)
-        {
-            numeros[pos + 1] = numeros[pos];
-            pos = pos - 1;
-        }
-        numeros[pos + 1] = aux;
-    }
-}
 
 void agregarPreciosUnion(struct IdAndInt numeros[])
 {
@@ -1323,16 +1316,76 @@ void agregarPreciosUnion(struct IdAndInt numeros[])
     }
 }
 
-void mostrarMenorAMayor(struct IdAndInt numeros[])
+void mostrarMenorAMayor(struct IdAndInt numeros[], string orden)
 {
     agregarPreciosUnion(numeros);
-    insercion(numeros);
 
-    cout << "Mostrar elementos del mas barato al mas caro:" << endl << endl;
+   if (orden == "mayor")
+    {
+       cout << "Mostrar elementos del mas caro al mas barato:" << endl << endl;
+        seleccion(numeros);
+   }
+   else if (orden == "menor")
+   {
+       cout << "Mostrar elementos del mas barato al mas caro:" << endl << endl;
+       insercion(numeros);
+    }
+   
+
+    
 
     for (int i = 0; i < cantidadObjetos; i++)
     {
-        idTranslate(numeros[i].ID,cantidadObjetos,stock);
+        idTranslate(numeros[i].ID, cantidadObjetos, stock);
+        cout << numeros[i].entero << endl;
         cout << endl << endl;
+    }
+}
+
+//Mayor a menor
+void insercion(struct IdAndInt numeros[])
+{
+    int i, pos;
+    IdAndInt temp;  // Variable temporal para almacenar el nodo actual
+
+    for (i = 1; i < cantidadObjetos; i++)
+    {
+        temp = numeros[i];
+        pos = i;
+
+        while ((pos > 0) && (numeros[pos - 1].entero > temp.entero))
+        {
+            // Realiza el intercambio tanto para el entero como para la cadena de texto
+            numeros[pos] = numeros[pos - 1];
+            pos--;
+        }
+
+        // Coloca el nodo temporal en su posición correcta
+        numeros[pos] = temp;
+    }
+}
+
+//Menor a mayor
+void seleccion(struct IdAndInt numeros[])
+{
+   
+    int i, j, max, aux;
+    string auxstring;
+    for (i = 0; i < cantidadObjetos; i++)
+    {
+        max = i;
+        for (j = i + 1; j < cantidadObjetos; j++)
+        {
+            if (numeros[j].entero > numeros[max].entero)
+            {
+                max = j;
+            }
+        }
+        aux = numeros[i].entero;
+        auxstring = numeros[i].ID;
+        numeros[i].entero = numeros[max].entero;
+        numeros[i].ID = numeros[max].ID;
+        numeros[max].entero = aux;
+        numeros[max].ID = auxstring;
     }
 }
