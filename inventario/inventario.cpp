@@ -1,7 +1,7 @@
 // inventario.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include <iostream>
+#include "iostream"
 #include "string"
 #include "vector"
 #include <chrono>
@@ -19,12 +19,12 @@ vector<string> categorias;
 
 
 //Listas simples
-struct clientes
+struct provedores
 {
     string nombreCliente;
     string direccion;
-    clientes* siguiente;
-    clientes* atras;
+    provedores* siguiente;
+    provedores* atras;
 }*primero, *ultimo;
 
 //Listas doblemente enlazadas
@@ -160,15 +160,15 @@ void idTranslate(string id, int cantidad, struct productos producto[]);
 bool buscarCodigo(string ident, int cantidad, struct productos producto[]);
 void mostrarCategorias();
 string ingresarFecha();
-void agregarCliente();
-void mostrarClientes();
-void eliminarCliente();
+void agregarProvedor();
+void mostrarProvedores();
+void eliminarProvedor();
 void eliminarProducto(string idEliminar, struct productos a[], int& cantidad);
 void mostrarProductos(struct productos a[], int cantidad);
 void agregarMoviemiento(struct productos producto[], struct caducidad& caduc);
 void mostrarListaPU();
 void mostrarListaUP();
-void mostrarClientes();
+void mostrarProvedores();
 string obtenerHora();
 int stringtokey(string name);
 void agregarCategoriaHASH(string nombre, string categoria);
@@ -180,7 +180,7 @@ void sacarProductosRestock();
 void imprimirProductosRestock();
 int restock(struct productos producto[]);
 int IDtoIndex(string ident, int cantidad, struct productos producto[]);
-void administracionCliente();
+void administracionProvedores();
 int buscarIndexPorID(int cantidad, union IDints a[], string ID);
 void codigosAenteros(union IDints arreglo[], struct productos producto[]);
 void quicksort(union IDints arreglo[], int primero, int ultimo);
@@ -195,12 +195,15 @@ bool busquedaArbol(nodoColaSimple* arbol, int n);
 void inicializarCola(Cola& cola);
 bool colaVacia(const Cola& cola);
 void encolar(Cola& cola);
-string desencolar(Cola& cola);
+int desencolar(Cola& cola);
 void mostrarCola(const Cola& cola);
 void vaciarCola(Cola& cola);
 void mostrarpedido(struct historialPedidos pedido[], int cantidad, int folio);
 void preOrden(nodoColaSimple* arbol);
 void menucola();
+void buscarProvedor(string provedorBuscar);
+int verificarExistenciaProvedor(string provedorBuscar);
+void administracionCreditos(Cola& cola);
 
 hashnode HashTable[1000];
 int tablesize = 20;
@@ -219,6 +222,7 @@ void menu()
     cout << " 6. Mostrar Categorias" << endl;
     cout << " 7. Mostrar Elementos del mas caro al mas barato" << endl;
     cout << " 8. Mostrar Elementos del mas barato al mas caro" << endl;
+    cout << " 9. Creditos" << endl;
     cout << " 7. Salir" << endl;
     cout << "---------------------------------------------------" << endl;
     cout << "Ingrese el número de la opción deseada: ";
@@ -232,59 +236,9 @@ int main()
     int op,aux,key;
     string categoria;
     cargaDatos(stock, caduc);
-    //
     Cola cola;
-    int dato;
-    string x;
     inicializarCola(cola);
-
-    do
-    {
-        menucola();
-        cin >> op;
-        cin.ignore();
-        switch (op)
-        {
-        case 1:
-
-            encolar(cola);
-            break;
-        case 2:
-            if (colaVacia(cola))
-                cout << "\nCola vacia";
-            else
-            {
-                x = desencolar(cola);
-                cout << "\nNumero " << x << " desencolado" << endl;
-            }
-            break;
-        case 3:
-            cout << "\nMostrar Cola\n";
-            if (!colaVacia(cola))
-                mostrarCola(cola);
-            else
-                cout << "\nCola vacia" << endl;
-            break;
-        case 4:
-            preOrden(arbol);
-            cout << "\nInserta el nuemero a buscar: ";
-            cin >> dato;
-            if (busquedaArbol(arbol, dato) == true) {
-                mostrarpedido(pedidos, cantidadPedidos, dato);
-            }
-            else {
-                cout << "\nEl elemento: " << dato << " No EXISTE en el arbol";
-            }
-            cout << "\n\n";
-            break;
-        case 5:
-            cout << "Adios" << endl;
-            break;
-        }
-    } while (op != 5);
-    cout << pedidos[cantidadPedidos - 1].fecha;
-    return 0;
-    //
+    
 
     do
     {
@@ -299,7 +253,7 @@ int main()
             break;
         case 2:
             system("cls");
-            administracionCliente();
+            administracionProvedores();
             break;
         case 3:
             system("cls");
@@ -346,13 +300,16 @@ int main()
             system("pause");
             break;
         case 9:
+            administracionCreditos(cola);
+            break;
+        case 10:
             break;
         default:
             cout << endl << "Opcion no valida";
 
         }
         system("cls");
-    } while (op != 9);
+    } while (op != 10);
 
     return 0;
 }
@@ -586,12 +543,12 @@ void agregarCaducidad(struct caducidad& q, string c, int pr) {
 
 //LIstas simples 
 
-void agregarCliente()
+void agregarProvedor()
 {
-    clientes* nuevo = new clientes();
-    cout << "Inserte el nombre del cliente: ";
+    provedores* nuevo = new provedores();
+    cout << "Inserte el nombre del provedor: ";
     getline(cin, nuevo->nombreCliente);
-    cout << "Inserte la direccion del cliente: ";
+    cout << "El numero del telefono del provedor ";
     getline(cin, nuevo->direccion);
 
     if (primero == NULL)
@@ -606,47 +563,47 @@ void agregarCliente()
         nuevo->siguiente = NULL;
         ultimo = nuevo;
     }
-    cout << "Cliente agregado" << endl;
+    cout << "Provedor agregado" << endl;
 }
 
-void mostrarClientes()
+void mostrarProvedores()
 {
-    clientes* actual = new clientes();
+    provedores* actual = new provedores();
     actual = primero;
     if (primero != NULL)
     {
         while (actual != NULL)
         {
             cout << endl << "Nombre: " << actual->nombreCliente << endl;
-            cout << "Direccion: " << actual->direccion << endl ;
+            cout << "Telefono: " << actual->direccion << endl ;
             actual = actual->siguiente;
         }
     }
     else
     {
-        cout << "No existen clientes registrados";
+        cout << "No existen provedores registrados aun";
     }
 }
 
 
-void eliminarCliente()
+void eliminarProvedor()
 {
     if (primero != NULL)
     {
-        clientes* actual = primero;
-        clientes* anterior = NULL;
-        string clienteBuscar;
+        provedores* actual = primero;
+        provedores* anterior = NULL;
+        string provedorBuscar;
 
-        cout << "Ingrese el nombre del cliente a eliminar: ";
-        getline(cin, clienteBuscar);
+        cout << "Ingrese el nombre del provedor a eliminar: ";
+        getline(cin, provedorBuscar);
 
         bool encontrado = false;
 
         while (actual != NULL && !encontrado)
         {
-            if (actual->nombreCliente == clienteBuscar)
+            if (actual->nombreCliente == provedorBuscar)
             {
-                cout << "\nEl cliente " << clienteBuscar << " existe en la lista" << endl;
+                cout << "\nEl provedor " << provedorBuscar << " existe en la lista" << endl;
 
                 if (actual == primero) // Eliminar el primer nodo
                 {
@@ -663,7 +620,7 @@ void eliminarCliente()
                 }
 
                 delete actual;
-                cout << "Cliente " << clienteBuscar << " eliminado" << endl;
+                cout << "Provedor " << provedorBuscar << " eliminado" << endl;
                 encontrado = true;
             }
             else
@@ -674,15 +631,90 @@ void eliminarCliente()
         }
 
         if (!encontrado)
-            cout << endl << "Elemento no encontrado";
+            cout << endl << "Provedor no encontrado";
     }
     else
     {
-        cout << "No hay clientes registrados" << endl;
+        cout << "No hay provedores registrados aun" << endl;
     }
 }
 
-void administracionCliente()
+int verificarExistenciaProvedor(string provedorBuscar)
+{
+    if (primero != NULL)
+    {
+        provedores* actual = primero;
+        provedores* anterior = NULL;
+
+        bool encontrado = false;
+
+        while (actual != NULL && !encontrado)
+        {
+            if (actual->nombreCliente == provedorBuscar)
+            {
+                return 1;
+                encontrado = true;
+            }
+            else
+            {
+                anterior = actual;
+                actual = actual->siguiente;
+            }
+        }
+
+        if (!encontrado)
+        {
+            cout << endl << "Provedor no encontrado";
+            return -1;
+        }
+            
+    }
+    else
+    {
+        cout << "No hay provedores registrados aun" << endl;
+        return 0;
+    }
+}
+
+void buscarProvedor(string provedorBuscar)
+{
+    if (primero != NULL)
+    {
+        provedores* actual = primero;
+        provedores* anterior = NULL;
+
+        bool encontrado = false;
+
+        while (actual != NULL && !encontrado)
+        {
+            if (actual->nombreCliente == provedorBuscar)
+            {
+                cout << "Nombre: " << actual->nombreCliente << endl;
+                cout << "Telefono: " << actual->direccion << endl;
+                actual = actual->siguiente;
+
+                encontrado = true;
+            }
+            else
+            {
+                anterior = actual;
+                actual = actual->siguiente;
+            }
+        }
+
+        if (!encontrado)
+        {
+            cout << endl << "Provedor no encontrado";
+        }
+
+    }
+    else
+    {
+        cout << "No hay provedores registrados aun" << endl;
+    }
+}
+
+void administracionProvedores()
 {
     bool hecho = false;
     int op;
@@ -690,12 +722,12 @@ void administracionCliente()
     {
         cout << "Ingrese el tipo de movimiento que desea realizar: ";
         cout << endl << "---------------------------------------------------" << endl;
-        cout << "               Administracion clientes           " << endl;
+        cout << "               Administracion provedores           " << endl;
         cout << "---------------------------------------------------" << endl;
         cout << " Seleccione una opción:" << endl;
-        cout << " 1. Agregar cliente" << endl;
-        cout << " 2. Mostrar CLientes" << endl;
-        cout << " 3. Eliminar Clientes" << endl;
+        cout << " 1. Agregar provedor" << endl;
+        cout << " 2. Mostrar provedores" << endl;
+        cout << " 3. Eliminar provedor" << endl;
         cout << "---------------------------------------------------" << endl;
         cout << "Ingrese el número de la opción deseada: ";
         cin >> op;
@@ -704,21 +736,21 @@ void administracionCliente()
         {
         case 1:
             system("cls");
-            agregarCliente();
+            agregarProvedor();
             system("pause");
             system("cls");
             hecho = true;
             break;
         case 2:
             system("cls");
-            mostrarClientes();
+            mostrarProvedores();
             system("pause");
             system("cls");
             hecho = true;
             break;
         case 3:
             system("cls");
-            eliminarCliente();
+            eliminarProvedor();
             system("pause");
             system("cls");
             hecho = true;
@@ -731,7 +763,7 @@ void administracionCliente()
 } 
     
 
-
+//Listas dobles
 void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
 {
     historialMovimientos* nuevo = new historialMovimientos();
@@ -912,20 +944,32 @@ void mostrarListaPU()
             actual = actual->siguiente;
         }
     }
+    else
+    {
+        cout << "No se han hecho movimientos aun" << endl;
+    }
 }
 
 void mostrarListaUP()
 {
     historialMovimientos* actual = ultimoh; 
     cout << endl << "Mostrando movimientos del mas actual al mas antiguo" << endl;
-    while (actual != NULL)
+   
+    if (primeroh != NULL)
     {
-        cout << endl << "Fecha: " <<actual->fechaMov << endl;
-        cout << "Producto: " << actual->producto << endl;
-        cout << "Tipo: " << actual->tipo << endl;
-        cout << "Antiguo: " << actual->antiguo << endl;
-        cout << "Nuevo: " << actual->nuevo << endl;
-        actual = actual->atras; 
+        while (actual != NULL)
+        {
+            cout << endl << "Fecha: " << actual->fechaMov << endl;
+            cout << "Producto: " << actual->producto << endl;
+            cout << "Tipo: " << actual->tipo << endl;
+            cout << "Antiguo: " << actual->antiguo << endl;
+            cout << "Nuevo: " << actual->nuevo << endl;
+            actual = actual->atras;
+        }
+    }
+    else
+    {
+        cout << "No se han hecho movimientos aun" << endl;
     }
 }
 
@@ -1548,44 +1592,85 @@ bool colaVacia(const Cola& cola)
 
 void encolar(Cola& cola)
 {
-    string x, concatenacion, hora;
-    int monto, folio;
+    string x, concatenacion, hora, provedorBuscar;
+    int monto, folio,aux,op2,valido;
     punteroColaSimple p_aux = new(struct pedidosPendientes);
-    cout << "Ingrese el nombre del provedor registrado anteriormente: ";
-    getline(cin, x);
-    p_aux->nombreProvedor = x;
-    pedidos[cantidadPedidos].nombreProvedor = x;
-    cout << "Ingrese el monto del credito: ";
-    cin >> monto;
-    p_aux->monto = monto;
-    pedidos[cantidadPedidos].monto = monto;
-    hora = obtenerHora();
-    p_aux->fecha = hora;
-    pedidos[cantidadPedidos].fecha = hora;
-    p_aux->sgte = NULL;
-    concatenacion = x.append(to_string(monto));
-    folio = stringtokey(concatenacion);
-    p_aux->folio = folio;
-    pedidos[cantidadPedidos].folio = folio;
-    insertarNodo(arbol, folio, NULL);
-    cantidadPedidos++;
-    cout << stringtokey(concatenacion);
-    if (cola.post == NULL)
+    bool verdad=false;
+    do
     {
-        cola.post = p_aux;
-    }
-    else
-    {
-        cola.pre->sgte = p_aux;
-    }
-    cola.pre = p_aux;
+        cout << "Ingrese el nombre del provedor: ";
+        getline(cin, x);
+        aux = verificarExistenciaProvedor(x);
+        if (aux == 1)
+        {
+            p_aux->nombreProvedor = x;
+            pedidos[cantidadPedidos].nombreProvedor = x;
+            cout << "Ingrese el monto del credito: ";
+            cin >> monto;
+            p_aux->monto = monto;
+            pedidos[cantidadPedidos].monto = monto;
+            hora = obtenerHora();
+            p_aux->fecha = hora;
+            pedidos[cantidadPedidos].fecha = hora;
+            p_aux->sgte = NULL;
+            concatenacion = x.append(to_string(monto));
+            folio = stringtokey(concatenacion);
+            p_aux->folio = folio;
+            pedidos[cantidadPedidos].folio = folio;
+            insertarNodo(arbol, folio, NULL);
+            cantidadPedidos++;
+            cout << stringtokey(concatenacion);
+            if (cola.post == NULL)
+            {
+                cola.post = p_aux;
+            }
+            else
+            {
+                cola.pre->sgte = p_aux;
+            }
+            cola.pre = p_aux;
+        }
+        else if (aux == -1)
+        {
+            system("cls");
+            cout << "El provedor no se encuentra en el registro" << endl;
+            cout << endl<<"Estos son los provedores registrados" << endl;
+            mostrarProvedores();
+            cout << endl<<"Desea volverlo a intentar o salir al menu" << endl;
+            cout << "1. Volver a intentar" << endl;
+            cout << "2. Salir al menu" << endl;
+            cout << "Ingrese la opcion deseada: ";
+            cin >> op2;
+            cin.ignore();
+            do
+            {
+                if (op2 == 1)
+                {
+                    cout << "Ok!" << endl;
+                    verdad = true;
+                    break;
+                }
+                else if (op2 == 2)
+                {
+                    return;
+                }
+                else
+                {
+                    cout << "Opcion no valida" << endl;
+                }
+            } while (verdad == false);
+            system("pause");
+            system("cls");
+        }
+    } while (aux != 1 && aux != 0);
+    
 }
 
-string desencolar(Cola& cola)
+int desencolar(Cola& cola)
 {
-    string n;
+    int n;
     punteroColaSimple p_aux = cola.post;
-    n = p_aux->nombreProvedor;
+    n = p_aux->folio;
     cola.post = (cola.post)->sgte;
     delete (p_aux);
     return n;
@@ -1598,7 +1683,8 @@ void mostrarCola(const Cola& cola)
     {
         cout << "Folio: " << p_aux->folio << endl;
         cout << "Fecha de registro: " << p_aux->fecha << endl;
-        cout << "Provedor: " << p_aux->nombreProvedor << endl;
+        /*cout << "Provedor: " << p_aux->nombreProvedor << endl;*/
+        buscarProvedor(p_aux->nombreProvedor);
         cout << "Monto a credito: " << p_aux->monto << " pesos" << endl << endl;
         p_aux = p_aux->sgte;
     }
@@ -1644,22 +1730,106 @@ void preOrden(nodoColaSimple* arbol)
         return;
     }
     else {
-        cout << arbol->dato << "->";
+        cout << arbol->dato << "  ";
         preOrden(arbol->izq);
         preOrden(arbol->der);
     }
 }
 
-//Borrar
 void menucola()
 {
     cout << "\t---------------\n";
     cout << "Implementacion de una cola" << endl;
-    cout << "1. Encolar\n";
-    cout << "2. Desencolar\n";
-    cout << "3. Mostrar Cola\n";
-    cout << "4. Destruir cola\n";
-    cout << "5. Salir\n";
+    cout << "1. Registrar nuevo credito\n";
+    cout << "2. Mostrar creditos pendientes\n";
+    cout << "3. Consultar creditos\n";
+    cout << "4. Salir\n";
     cout << "Ingrese una opcion: ";
 }
 
+void administracionCreditos(Cola& cola)
+{
+    int dato, op, pagar,op2=99;
+    string x;
+    bool hecho=false;
+    bool valido = false;
+    do
+    {
+        menucola();
+        cin >> op;
+        cin.ignore();
+        switch (op)
+        {
+        case 1:
+            if (primero != NULL)
+            {
+                encolar(cola);
+                return;
+            }
+            else
+            {
+                cout << "De de alta a los provedores primero" << endl;
+                cout << endl << "Regresando al menu";
+                system("pause");
+                return;
+            }
+            hecho = true;
+            break;
+        case 2:
+            cout << "\nMostrando creditos pendientes\n";
+            if (!colaVacia(cola))
+            {
+                mostrarCola(cola);
+                cout << endl << "Desea marcar como pagado el credito mas antiguo?" << endl;
+                cout << "1. Deseo pagar mi credito" << endl;
+                cout << "2. En otro momento" << endl;
+                cin >> pagar;
+                if (pagar == 1)
+                {
+                    x= desencolar(cola);
+                    cout << "\nCredito pagado" << endl;
+                    system("pause");
+                    return;
+                }
+                else
+                {
+                    cout << "Ok!" << endl;
+                    system("pause");
+                    return;
+                }
+            }
+            else
+            {
+                cout << "\nNo hay creditos pendientes" << endl;
+                system("pause");
+                return;
+            }
+            hecho = true;
+            break;
+        case 3:
+            cout << "Mostrando folios registrados" << endl << endl;
+            preOrden(arbol);
+            cout << "\nInserta el folio a buscar: ";
+            cin >> dato;
+            if (busquedaArbol(arbol, dato) == true) 
+            {
+                mostrarpedido(pedidos, cantidadPedidos, dato);
+                system("pause");
+                return;
+            }
+            else {
+                cout << "\nEl folio: " << dato << " No EXISTE en el registro";
+                system("pause");
+                return;
+            }
+            cout << "\n\n";
+            hecho = true;
+            break;
+        case 4:
+            break;
+        default:
+            cout << "Opcion no valida" << endl;
+            break;
+        }
+    } while (op != 4);    
+}
