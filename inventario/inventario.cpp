@@ -11,6 +11,7 @@ using namespace std;
 
 int cantidadObjetos = 5;
 int cantidadCategorias = 3;
+int cantidadPedidos = 0;
 int ayudaGlobal;
 string stringGlobal;
 vector<string> categorias;
@@ -78,7 +79,7 @@ struct necesitanRestock
 
 }*cima, * adelante;
 
-//Para busqueda binaria y ordenamiento por insercion
+//Para busqueda binaria y ordenamiento por quickshort
 union IDints {
     int idEntero;
 };
@@ -86,6 +87,7 @@ union IDints {
 union IDints codigosToInts[MAX];
 int indiceUnion = 0;
 
+//Para ordenamiento por insercion y seleccion
 struct IdAndInt
 {
     int entero;
@@ -93,6 +95,45 @@ struct IdAndInt
 };
 
 struct IdAndInt IDyEntero[MAX];
+
+//Estructura
+struct historialPedidos
+{
+    string nombreProvedor;
+    int folio;
+    int monto;
+    string fecha;
+};
+
+//Arboles BInarios de Busqueda
+struct nodoColaSimple {
+    int dato;
+    nodoColaSimple* der;
+    nodoColaSimple* izq;
+    nodoColaSimple* padre;
+};
+nodoColaSimple* arbol = NULL;
+
+
+struct historialPedidos pedidos[MAX];
+
+//Cola simple
+struct pedidosPendientes
+{
+    string nombreProvedor;
+    int folio;
+    int monto;
+    string fecha;
+    struct pedidosPendientes* sgte;
+};
+
+typedef struct pedidosPendientes* punteroColaSimple;
+
+struct Cola
+{
+    punteroColaSimple post; // punteroColaSimple del primer elemento
+    punteroColaSimple pre;   // punteroColaSimple ultimo elemento
+};
 
 //Datos de los productos
 struct productos
@@ -104,12 +145,7 @@ struct productos
     string id;
 }typedef node;
 
-
-
-
 struct productos stock[MAX];
-
-
 
 
 void cargaDatos(struct productos[],struct caducidad &caduc);
@@ -153,9 +189,18 @@ void agregarPreciosUnion(struct IdAndInt numeros[]);
 void mostrarMenorAMayor(struct IdAndInt numeros[], string orden);
 void seleccion(struct IdAndInt numeros[]);
 void insercion(struct IdAndInt numeros[]);
-
-
-
+nodoColaSimple* crearNodo(int n, nodoColaSimple* padre);
+void insertarNodo(nodoColaSimple*& arbol, int n, nodoColaSimple* padre);
+bool busquedaArbol(nodoColaSimple* arbol, int n);
+void inicializarCola(Cola& cola);
+bool colaVacia(const Cola& cola);
+void encolar(Cola& cola);
+string desencolar(Cola& cola);
+void mostrarCola(const Cola& cola);
+void vaciarCola(Cola& cola);
+void mostrarpedido(struct historialPedidos pedido[], int cantidad, int folio);
+void preOrden(nodoColaSimple* arbol);
+void menucola();
 
 hashnode HashTable[1000];
 int tablesize = 20;
@@ -187,7 +232,59 @@ int main()
     int op,aux,key;
     string categoria;
     cargaDatos(stock, caduc);
+    //
+    Cola cola;
+    int dato;
+    string x;
+    inicializarCola(cola);
 
+    do
+    {
+        menucola();
+        cin >> op;
+        cin.ignore();
+        switch (op)
+        {
+        case 1:
+
+            encolar(cola);
+            break;
+        case 2:
+            if (colaVacia(cola))
+                cout << "\nCola vacia";
+            else
+            {
+                x = desencolar(cola);
+                cout << "\nNumero " << x << " desencolado" << endl;
+            }
+            break;
+        case 3:
+            cout << "\nMostrar Cola\n";
+            if (!colaVacia(cola))
+                mostrarCola(cola);
+            else
+                cout << "\nCola vacia" << endl;
+            break;
+        case 4:
+            preOrden(arbol);
+            cout << "\nInserta el nuemero a buscar: ";
+            cin >> dato;
+            if (busquedaArbol(arbol, dato) == true) {
+                mostrarpedido(pedidos, cantidadPedidos, dato);
+            }
+            else {
+                cout << "\nEl elemento: " << dato << " No EXISTE en el arbol";
+            }
+            cout << "\n\n";
+            break;
+        case 5:
+            cout << "Adios" << endl;
+            break;
+        }
+    } while (op != 5);
+    cout << pedidos[cantidadPedidos - 1].fecha;
+    return 0;
+    //
 
     do
     {
@@ -1043,6 +1140,7 @@ string obtenerHora()
     return formattedTime;
 }
 
+//Hashing
 int stringtokey(string name)
 {
     int s = 0;
@@ -1389,3 +1487,179 @@ void seleccion(struct IdAndInt numeros[])
         numeros[max].ID = auxstring;
     }
 }
+
+nodoColaSimple* crearNodo(int n, nodoColaSimple* padre) {
+    nodoColaSimple* nuevo_nodo = new nodoColaSimple();
+    nuevo_nodo->dato = n;
+    nuevo_nodo->der = NULL;
+    nuevo_nodo->izq = NULL;
+    nuevo_nodo->padre = padre;
+
+    return nuevo_nodo;
+}
+
+//Función para insrtar el elemento al Árbol
+
+void insertarNodo(nodoColaSimple*& arbol, int n, nodoColaSimple* padre)
+{
+    if (arbol == NULL) { //Si el arbol esta vacio
+
+        nodoColaSimple* nuevo_nodo = crearNodo(n, padre);
+        arbol = nuevo_nodo;
+    }
+    else { //si el arbol tiene un nodo o mas
+        int valorRaiz = arbol->dato;//obtenemos el valor de la raiz
+        if (n < valorRaiz) {//si el elemento es menor a la raiz, insertamos en izq
+            insertarNodo(arbol->izq, n, arbol);
+        }
+        else {//si el elemento es menor a la raiz, insertamos en der
+            insertarNodo(arbol->der, n, arbol);
+        }
+    }
+}
+
+bool busquedaArbol(nodoColaSimple* arbol, int n) 
+{
+    if (arbol == NULL) {
+        return false;
+    }
+    else if (arbol->dato == n) {
+        return true;
+    }
+    else if (n < arbol->dato) {
+        return busquedaArbol(arbol->izq, n);
+    }
+    else {
+        return busquedaArbol(arbol->der, n);
+    }
+}
+
+void inicializarCola(Cola& cola)
+{
+    // Inicializando punteros de la cola
+    cola.post = NULL;
+    cola.pre = NULL;
+}
+
+bool colaVacia(const Cola& cola)
+{
+    return cola.post == NULL;
+}
+
+void encolar(Cola& cola)
+{
+    string x, concatenacion, hora;
+    int monto, folio;
+    punteroColaSimple p_aux = new(struct pedidosPendientes);
+    cout << "Ingrese el nombre del provedor registrado anteriormente: ";
+    getline(cin, x);
+    p_aux->nombreProvedor = x;
+    pedidos[cantidadPedidos].nombreProvedor = x;
+    cout << "Ingrese el monto del credito: ";
+    cin >> monto;
+    p_aux->monto = monto;
+    pedidos[cantidadPedidos].monto = monto;
+    hora = obtenerHora();
+    p_aux->fecha = hora;
+    pedidos[cantidadPedidos].fecha = hora;
+    p_aux->sgte = NULL;
+    concatenacion = x.append(to_string(monto));
+    folio = stringtokey(concatenacion);
+    p_aux->folio = folio;
+    pedidos[cantidadPedidos].folio = folio;
+    insertarNodo(arbol, folio, NULL);
+    cantidadPedidos++;
+    cout << stringtokey(concatenacion);
+    if (cola.post == NULL)
+    {
+        cola.post = p_aux;
+    }
+    else
+    {
+        cola.pre->sgte = p_aux;
+    }
+    cola.pre = p_aux;
+}
+
+string desencolar(Cola& cola)
+{
+    string n;
+    punteroColaSimple p_aux = cola.post;
+    n = p_aux->nombreProvedor;
+    cola.post = (cola.post)->sgte;
+    delete (p_aux);
+    return n;
+}
+
+void mostrarCola(const Cola& cola)
+{
+    punteroColaSimple p_aux = cola.post;
+    while (p_aux != NULL)
+    {
+        cout << "Folio: " << p_aux->folio << endl;
+        cout << "Fecha de registro: " << p_aux->fecha << endl;
+        cout << "Provedor: " << p_aux->nombreProvedor << endl;
+        cout << "Monto a credito: " << p_aux->monto << " pesos" << endl << endl;
+        p_aux = p_aux->sgte;
+    }
+}
+
+void vaciarCola(Cola& cola)
+{
+    punteroColaSimple p_aux, r_aux;
+    p_aux = cola.post;
+    while (p_aux != NULL)
+    {
+        r_aux = p_aux;
+        p_aux = p_aux->sgte;
+        delete (r_aux);
+    }
+    cola.post = NULL;
+    cola.pre = NULL;
+}
+
+void mostrarpedido(struct historialPedidos pedido[], int cantidad, int folio)
+{
+    bool encontrado = false;
+    for (int i = 0; i < cantidad; i++)
+    {
+        if (pedido[i].folio == folio)
+        {
+            encontrado = true;
+            cout << "Folio: " << pedido[i].folio << endl;
+            cout << "Fecha de registro: " << pedido[i].fecha << endl;
+            cout << "Proveedor: " << pedido[i].nombreProvedor << endl;
+            cout << "Monto a credito: " << pedido[i].monto << " pesos" << endl << endl;
+        }
+    }
+
+    if (!encontrado)
+    {
+        cout << "El elemento con folio " << folio << " no existe en el historial de pedidos." << endl;
+    }
+}
+void preOrden(nodoColaSimple* arbol)
+{
+    if (arbol == NULL) {
+        return;
+    }
+    else {
+        cout << arbol->dato << "->";
+        preOrden(arbol->izq);
+        preOrden(arbol->der);
+    }
+}
+
+//Borrar
+void menucola()
+{
+    cout << "\t---------------\n";
+    cout << "Implementacion de una cola" << endl;
+    cout << "1. Encolar\n";
+    cout << "2. Desencolar\n";
+    cout << "3. Mostrar Cola\n";
+    cout << "4. Destruir cola\n";
+    cout << "5. Salir\n";
+    cout << "Ingrese una opcion: ";
+}
+
