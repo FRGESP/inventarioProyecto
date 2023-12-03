@@ -16,6 +16,21 @@ int ayudaGlobal;
 string stringGlobal;
 vector<string> categorias;
 
+int visitado[11], camino[20], df, cont = 0, sal = 0, fst = 0;
+const char* ciudades[] = { "Moroleon", "Yuriria", "Valle", "Tarimbaro", "Salvatierra", "Salamanca", "Cortazar", "Morelia", "Acambaro", "Celaya", "Irapuato" };
+int vecinas[11][11] = {
+        {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
+        {1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0},
+        {1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0},
+        {1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0},
+        {0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0},
+        {0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1},
+        {0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0},
+        {0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0} };
+
 
 
 //Listas simples
@@ -206,30 +221,14 @@ int verificarExistenciaProvedor(string provedorBuscar);
 void administracionCreditos(Cola& cola);
 void adminitrarMovimientos(struct caducidad caduc);
 void administracionVisualuzacionDatos(struct caducidad caduc);
-
+void dfs(int of);
+int busqueda(const char en[10]);
+void corregidor(char* ent);
+void grafos();
 
 hashnode HashTable[1000];
 int tablesize = 20;
 
-//void menu()
-//{
-//    cout << endl << "---------------------------------------------------" << endl;
-//    cout << "               LISTAS ORDENADAS C++           " << endl;
-//    cout << "---------------------------------------------------" << endl;
-//    cout << " Seleccione una opcion:" << endl;
-//    cout << " 1. Hacer Movimiento" << endl;
-//    cout << " 2. Clientes" << endl;
-//    cout << " 3. Mostrar caducidades" << endl;
-//    cout << " 4. Movimientos del mas antiguo al mas actual" << endl;
-//    cout << " 5. Movimientos del mas actual al mas antiguo" << endl;
-//    cout << " 6. Mostrar Categorias" << endl;
-//    cout << " 7. Mostrar Elementos del mas caro al mas barato" << endl;
-//    cout << " 8. Mostrar Elementos del mas barato al mas caro" << endl;
-//    cout << " 9. Creditos" << endl;
-//    cout << " 7. Salir" << endl;
-//    cout << "---------------------------------------------------" << endl;
-//    cout << "Ingrese el número de la opción deseada: ";
-//}
 
 void menu()
 {
@@ -241,9 +240,10 @@ void menu()
     cout << " 2. Visualizacion de productos" << endl;
     cout << " 3. Provedores" << endl;
     cout << " 4. Creditos" << endl;
-    cout << " 5. Salir" << endl;
+    cout << " 5. Ruta" << endl;
+    cout << " 6. Salir" << endl;
     cout << "---------------------------------------------------" << endl;
-    cout << "Ingrese el número de la opcion deseada: ";
+    cout << "Ingrese el numero de la opcion deseada: ";
 }
 
 void menuMovimiento()
@@ -256,7 +256,7 @@ void menuMovimiento()
     cout << " 2. Movimientos del mas antiguo al mas actual" << endl;
     cout << " 3. Movimientos del mas actual al mas antiguo" << endl;
     cout << "---------------------------------------------------" << endl;
-    cout << "Ingrese el número de la opcion deseada: ";
+    cout << "Ingrese el numero de la opcion deseada: ";
 }
 
 void menuVisualizacionProductos()
@@ -271,7 +271,7 @@ void menuVisualizacionProductos()
     cout << " 4. Mostrar productos por fecha de caducidad" << endl;
     cout << " 5. Mostrar productos por categoria" << endl;
     cout << "---------------------------------------------------" << endl;
-    cout << "Ingrese el número de la opcion deseada: ";
+    cout << "Ingrese el numero de la opcion deseada: ";
 }
 
 int main()
@@ -307,85 +307,21 @@ int main()
             administracionCreditos(cola);
             break;
         case 5:
-            break;
-        default:
-            break;
-        }
-        system("cls");
-    } while (op != 5);
-
-
-    /*do
-    {
-        menu();
-        cin >> op;
-        cin.ignore();
-        switch (op)
-        {
-        case 1:
             system("cls");
-            agregarMoviemiento(stock,caduc);
-            break;
-        case 2:
-            system("cls");
-            administracionProvedores();
-            break;
-        case 3:
-            system("cls");
-            mostrarCaducidad(caduc, cantidadObjetos, stock);
+            grafos();
             system("pause");
-            break;
-        case 4:
             system("cls");
-            mostrarListaPU();
-            system("pause");
-            break;
-        case 5:
-            system("cls");
-            mostrarListaUP();
-            system("pause");
             break;
         case 6:
-            mostrarCategorias();
-            cout << "\nSeleccione la categoria deseada: ";
-            cin >> aux;
-            cin.ignore();
-            key = buscarnodo(categorias[aux-1]);
-            if (key == -1)
-            {
-                cout << "La categoria no se encuentra" << endl;
-            }
-            else
-            {
-                system("cls");
-                cout << "Se muestran los productos de la categoria "<< categorias[aux - 1] << endl<<endl;
-                ImprimirLista(HashTable[key],stock);
-                cout << endl << endl;
-            }
-            system("pause");
-            break;
-        case 7:
-            system("cls");
-            mostrarMenorAMayor(IDyEntero, "mayor");
-            system("pause");
-            break;
-        case 8:
-            system("cls");
-            mostrarMenorAMayor(IDyEntero, "menor");
-            system("pause");
-            break;
-        case 9:
-            administracionCreditos(cola);
-            break;
-        case 10:
             break;
         default:
-            cout << endl << "Opcion no valida";
-
+            cout << "Opcion no valida";
+            system("pause");
+            system("cls");
+            break;
         }
         system("cls");
-    } while (op != 10);*/
-
+    } while (op != 6);
     return 0;
 }
 
@@ -2022,4 +1958,169 @@ void administracionCreditos(Cola& cola)
             break;
         }
     } while (op != 4);    
+}
+
+void grafos()
+{
+    char origen[15], destino[15], seg[3];
+    seg[0] = 'S';
+    int o, d, i;
+
+    cout << "Este programa crea una ruta de una ciudad a otra\n"
+        << "Las ciudades en nuestro sistema son:\n"
+        << "-Moroleon "
+        << "-Yuriria "
+        << "-Valle "
+        << "-Tarimbaro "
+        << "-Salvatierra\n"
+        << "-Salamanca "
+        << "-Cortazar "
+        << "-Morelia "
+        << "-Acambaro "
+        << "-Celaya "
+        << "-Irapuato\n";
+
+
+    memset(visitado, 0, sizeof(visitado));
+    cout << "\nIntruzca la ciudad de origen: ";
+    cin >> origen;
+    corregidor(origen);
+    o = busqueda(origen);
+
+    while (o == 99)
+    {
+        cout << "Entrada no valida intente de nuevo: ";
+        cin >> origen;
+        corregidor(origen);
+        o = busqueda(origen);
+    }
+
+    cout << "Introduzca la ciuad de destino: ";
+    cin >> destino;
+    corregidor(destino);
+    d = busqueda(destino);
+
+    while (d == 99)
+    {
+        cout << "Entrada no valida intente de nuevo: ";
+        cin >> destino;
+        corregidor(destino);
+        d = busqueda(destino);
+    }
+
+    df = d;
+
+    if (df == o)
+    {
+        cout << "Usted esta en " << ciudades[o] << endl;
+    }
+    else
+    {
+        dfs(o);
+        camino[0] = o;
+        cout << "\nSe muestra ruta encontrada de " << ciudades[o] << " a " << ciudades[df] << ":\n";
+        for (i = 0; i <= cont; i++)
+        {
+            if (i == cont)
+            {
+                cout << ciudades[camino[i]] << endl;
+            }
+            else
+            {
+                cout << ciudades[camino[i]] << "-->";
+            }
+        }
+    }
+
+    cont = 0;
+    sal = 0;
+    fst = 0;
+}
+
+void dfs(int of)
+{
+    int i;
+    visitado[of] = 1;
+    cont++;
+
+    for (i = 0; i < 11; i++)
+    {
+        if ((vecinas[of][i] == 1) && (visitado[i] != 1))
+        {
+            if (i == df)
+            {
+                camino[cont] = i;
+                fst = 1;
+                sal = 1;
+                break;
+            }
+        }
+    }
+
+    if (fst == 0)
+    {
+        for (i = 0; i < 11; i++)
+        {
+            if (sal == 1)
+            {
+                break;
+            }
+            else
+            {
+                if ((vecinas[of][i] == 1) && (visitado[i] != 1))
+                {
+                    camino[cont] = i;
+                    dfs(i);
+                }
+            }
+            if (i == 10)
+            {
+                cont--;
+            }
+        }
+    }
+}
+
+int busqueda(const char en[15])
+{
+    int i, lon, j, cont = 99;
+
+    lon = strlen(en);
+
+    for (i = 0; i < 11; i++)
+    {
+        j = -1;
+
+        while (ciudades[i][j + 1] == en[j + 1])
+        {
+            j++;
+        }
+
+        if (j == lon)
+        {
+            cont = i;
+            break;
+        }
+    }
+
+    if (cont == 99)
+    {
+        return 99;
+    }
+    else
+    {
+        return cont;
+    }
+}
+
+void corregidor(char* ent)
+{
+    int lon, i;
+    lon = strlen(ent);
+    ent[0] = toupper(ent[0]);
+
+    for (i = 1; i < lon; i++)
+    {
+        ent[i] = tolower(ent[i]);
+    }
 }
