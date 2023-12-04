@@ -16,7 +16,7 @@ int ayudaGlobal;
 string stringGlobal;
 vector<string> categorias;
 
-int visitado[11], camino[20], df, cont = 0, sal = 0, fst = 0;
+int visitado[11], camino[20], df, cont = 0, sal = 0, fst = 0,enc=0;
 const char* ciudades[] = { "Moroleon", "Yuriria", "Valle", "Tarimbaro", "Salvatierra", "Salamanca", "Cortazar", "Morelia", "Acambaro", "Celaya", "Irapuato" };
 int vecinas[11][11] = {
         {0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0},
@@ -178,7 +178,7 @@ string ingresarFecha();
 void agregarProvedor();
 void mostrarProvedores();
 void eliminarProvedor();
-void eliminarProducto(string idEliminar, struct productos a[], int& cantidad);
+void eliminarProducto(string idEliminar, struct productos a[], int cantidad);
 void mostrarProductos(struct productos a[], int cantidad);
 void agregarMoviemiento(struct productos producto[], struct caducidad& caduc);
 void mostrarListaPU();
@@ -266,10 +266,11 @@ void menuVisualizacionProductos()
     cout << "---------------------------------------------------" << endl;
     cout << " Seleccione una opcion:" << endl;
     cout << " 1. Buscar por ID" << endl;
-    cout << " 2. Mostrar productos del mas barato al mas caro" << endl;
-    cout << " 3. Mostrar productos del mas caro al mas barato" << endl;
-    cout << " 4. Mostrar productos por fecha de caducidad" << endl;
-    cout << " 5. Mostrar productos por categoria" << endl;
+    cout << " 2. Vista general de productos" << endl;
+    cout << " 3. Mostrar productos del mas barato al mas caro" << endl;
+    cout << " 4. Mostrar productos del mas caro al mas barato" << endl;
+    cout << " 5. Mostrar productos por fecha de caducidad" << endl;
+    cout << " 6. Mostrar productos por categoria" << endl;
     cout << "---------------------------------------------------" << endl;
     cout << "Ingrese el numero de la opcion deseada: ";
 }
@@ -388,23 +389,30 @@ void administracionVisualuzacionDatos(struct caducidad caduc)
             break;
         case 2:
             system("cls");
-            mostrarMenorAMayor(IDyEntero, "menor");
+            mostrarProductos(stock, cantidadObjetos);
+            cout << endl;
             system("pause");
             hecho = true;
             break;
         case 3:
             system("cls");
-            mostrarMenorAMayor(IDyEntero, "mayor");
+            mostrarMenorAMayor(IDyEntero, "menor");
             system("pause");
             hecho = true;
             break;
         case 4:
             system("cls");
-            mostrarCaducidad(caduc, cantidadObjetos, stock);
+            mostrarMenorAMayor(IDyEntero, "mayor");
             system("pause");
             hecho = true;
             break;
         case 5:
+            system("cls");
+            mostrarCaducidad(caduc, cantidadObjetos, stock);
+            system("pause");
+            hecho = true;
+            break;
+        case 6:
             system("cls");
             mostrarCategorias();
             cout << "\n\nSeleccione la categoria deseada: ";
@@ -616,13 +624,18 @@ void mostrarCaducidad(struct caducidad q, int cantidad, struct productos p[]) {
     struct nodo* aux;
     aux = q.delante;
     string ap;
+    enc = 0;
     cout << "Mostrando productos por caducidad" << endl;
     while (aux != NULL) {
 
         ap = aux->id;
         idTranslate(ap, cantidad, p);
-        cout <<"Caducidad: "<< convertirFecha(aux->caducidad) << endl<<endl;
+        if (enc == 0)
+        {
+            cout << "Caducidad: " << convertirFecha(aux->caducidad) << endl << endl;
+        }
         aux = aux->sgte;
+        enc = 0;
     }
 
 }
@@ -669,7 +682,7 @@ void agregarProvedor()
     provedores* nuevo = new provedores();
     cout << "Inserte el nombre del provedor: ";
     getline(cin, nuevo->nombreCliente);
-    cout << "El numero del telefono del provedor ";
+    cout << "El numero del telefono del provedor: ";
     getline(cin, nuevo->direccion);
 
     if (primero == NULL)
@@ -724,8 +737,6 @@ void eliminarProvedor()
         {
             if (actual->nombreCliente == provedorBuscar)
             {
-                cout << "\nEl provedor " << provedorBuscar << " existe en la lista" << endl;
-
                 if (actual == primero) // Eliminar el primer nodo
                 {
                     primero = actual->siguiente;
@@ -1151,7 +1162,7 @@ void idTranslate(string ident,int cantidad, struct productos producto[])
     }
     if (band == false)
     {
-        cout << "El producto no se encuentra en el inventario" << endl;
+        enc = -1;
     }
     else if (band == true)
     {
@@ -1272,7 +1283,7 @@ string ingresarFecha()
     return fecha;
 }
 
-void eliminarProducto(string idEliminar, struct productos a[], int& cantidad) 
+void eliminarProducto(string idEliminar, struct productos a[], int cantidad) 
 {
     int posEliminar = -1;
     for (int i = 0; i < cantidad; i++) {
@@ -1287,7 +1298,7 @@ void eliminarProducto(string idEliminar, struct productos a[], int& cantidad)
             a[i] = a[i + 1];
         }
 
-        cantidad--;
+        cantidadObjetos--;
         cout << "Producto con ID " << idEliminar << " eliminado exitosamente." << endl;
     }
     else {
