@@ -222,7 +222,7 @@ void administracionCreditos(Cola& cola);
 void adminitrarMovimientos(struct caducidad caduc);
 void administracionVisualuzacionDatos(struct caducidad caduc);
 void dfs(int of);
-int busqueda(const char en[10]);
+int busqueda(const char en[15]);
 void corregidor(char* ent);
 void grafos();
 
@@ -343,6 +343,7 @@ void adminitrarMovimientos(struct caducidad caduc)
             hecho = true;
             break;
         case 2:
+            system("cls");
             mostrarListaPU();
             system("pause");
             hecho = true;
@@ -377,6 +378,7 @@ void administracionVisualuzacionDatos(struct caducidad caduc)
         switch (op)
         {
         case 1:
+            system("cls");
             cout << "Ingrese el ID: ";
             getline(cin, ID);
             cout << endl;
@@ -510,7 +512,7 @@ void agregarProductos(struct productos objeto[], struct caducidad &caduc)
     {
         cout << "Estas son las categoriass existentes:\n";
         mostrarCategorias();
-        cout << endl<<"\n¿Desea agregar el producto a una categoria existente o crear una nueva categoria?"<<endl;
+        cout << endl<<"\nDesea agregar el producto a una categoria existente o crear una nueva categoria?"<<endl<<endl;
         cout << "1. Agregar a una categoria existente" << endl;
         cout << "2. Crear una categoria nueva" << endl;
         cout << "Ingrese la opcion deseada: ";
@@ -848,7 +850,7 @@ void administracionProvedores()
         cout << " 2. Mostrar provedores" << endl;
         cout << " 3. Eliminar provedor" << endl;
         cout << "---------------------------------------------------" << endl;
-        cout << "Ingrese el número de la opción deseada: ";
+        cout << "Ingrese el numero de la opcion deseada: ";
         cin >> op;
         cin.ignore();
         switch (op)
@@ -894,12 +896,13 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
     tiempo = obtenerHora();
     nuevo->fechaMov=tiempo;
     do {
+        system("cls");
         
         cout << "Ingrese el tipo de movimiento que desea realizar: ";
         cout << endl << "---------------------------------------------------" << endl;
         cout << "               Realizar Movimiento           " << endl;
         cout << "---------------------------------------------------" << endl;
-        cout << " Seleccione una opción:" << endl;
+        cout << " Seleccione una opcion:" << endl;
         cout << " 1. Agregar producto" << endl;
         cout << " 2. Cambiar Nombre a producto existente" << endl;
         cout << " 3. Cambiar Precio a producto existente" << endl;
@@ -908,7 +911,7 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
         cout << " 6. Eliminar Producto" << endl;
         cout << " 7. Reabastecimiento" << endl;
         cout << "---------------------------------------------------" << endl;
-        cout << "Ingrese el número de la opción deseada: ";
+        cout << "Ingrese el numero de la opcion deseada: ";
         cin >> op;
         cin.ignore();
 
@@ -924,7 +927,7 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
             hecho = true;
             break;
         case 2:
-            cout << endl << "Estos son los productos actuales:" << endl << endl;
+            system("cls");
             indice= consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
             cout << endl << "Ingrese el nuevo nombre: ";
             getline(cin, auxiliar);
@@ -937,11 +940,11 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
             break;
 
         case 3:
-            cout << endl << "Estos son los productos actuales:" << endl << endl;
+            system("cls");
             indice = consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
             cout << endl << "Ingrese el nuevo precio: ";
             cin >> aux;
-            nuevo->antiguo = to_string(producto[indice].precio);  // Cambiar aquí a to_string
+            nuevo->antiguo = to_string(producto[indice].precio);  
             producto[indice].precio = aux;
             nuevo->nuevo = to_string(aux);
             nuevo->tipo = "Cambio de Precio";
@@ -949,7 +952,7 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
             hecho = true;
             break;
         case 4:
-            cout << endl << "Estos son los productos actuales:" << endl << endl;
+            system("cls");
             indice = consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
             cout << endl << "La cantidad a agregar: ";
             cin >> aux;
@@ -962,9 +965,9 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
             hecho = true;
             break;
         case 5:
+            system("cls");
             do
             {
-                cout << endl << "Estos son los productos actuales:" << endl << endl;
                 indice = consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
                 cout << endl << "La cantidad a quitar: ";
                 cin >> aux2;
@@ -980,25 +983,27 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
                 }
                 else
                 {
-                    cout << "La cantidad que desea quitar no es valida, intente de nuevo" << endl;
+                    cout << "La cantidad que desea quitar no es valida, existen menos productos que la cantidad indicada, intente de nuevo" << endl;
+                    system("pause");
+                    system("cls");
                 }
             } while (ban == false);
             nuevo->tipo = "Salida";
             hecho = true;
             break;
         case 6:
-            cout << endl << "Estos son los productos actuales:" << endl << endl;
+            system("cls");
             indice = consultaIdExiste(cantidadObjetos, codigosToInts, claveID);
-            cin.ignore();
             nuevo->antiguo = producto[indice].nombre;
             nuevo->nuevo = "Eliminado";
             nuevo->producto = producto[indice].nombre;
             nuevo->tipo = "Eliminar Objeto";
             eliminarProducto(producto[indice].id, producto, cantidadObjetos);
             hecho = true;
+            system("pause");
             break;
         case 7:
-            
+            system("cls");
             aux=restock(producto);
             if (aux == -1)
             {
@@ -1007,6 +1012,17 @@ void agregarMoviemiento(struct productos producto[], struct caducidad& caduc)
                 auxiliar.append(" unidades");
                 nuevo->antiguo = "Sin elementos por reabastecer";
                 nuevo->nuevo = "Sin elementos por reabastecer";
+                nuevo->producto = auxiliar;
+                nuevo->tipo = "Reabastecimiento";
+                hecho = true;
+            }
+            else if (aux == -2)
+            {
+                auxiliar = "Se hizo consulta por productos con menos de ";
+                auxiliar.append(to_string(ayudaGlobal));
+                auxiliar.append(" unidades");
+                nuevo->antiguo = "Solo consulta";
+                nuevo->nuevo = "Solo consulta";
                 nuevo->producto = auxiliar;
                 nuevo->tipo = "Reabastecimiento";
                 hecho = true;
@@ -1421,7 +1437,7 @@ void imprimirProductosRestock()
 }
 int restock(struct productos producto[])
 {
-    int valor, i,suma=0,index,aux,cont=0;
+    int valor, i,suma=0,index,aux,cont=0,op;
     string cadena;
 
 
@@ -1450,21 +1466,36 @@ int restock(struct productos producto[])
         cout << "Estos son los productos con menos de " << valor << " unidades" << endl << endl;
         imprimirProductosRestock();
 
-        while (cont > 0)
+        cout << endl<<"Desea reabastecer los productos?" << endl;
+        cout << "1. Si" << endl;
+        cout << "2. En otro momento" << endl;
+        cout << "Elija la opcion deseada: ";
+        cin >> op;
+        if (op == 1)
         {
-            index = IDtoIndex(cima->ID, cantidadObjetos, producto);
-            ayudaGlobal = index;
-            cout << endl << endl << "Se hara reabastecimiento del producto " << producto[index].nombre << " que tiene solo " << producto[index].cantidad << " unidades" << endl << endl;
-            cout << "Ingrese la cantidad a agregar del producto: ";
-            cin >> aux;
-            cin.ignore();
-            producto[index].cantidad += aux;
-            cout << endl << "Ahora el producto cuenta con: " << producto[index].cantidad << " unidades " << endl;
-            sacarProductosRestock();
-            cont--;
-            suma += aux;
+            system("cls");
+            while (cont > 0)
+            {
+                index = IDtoIndex(cima->ID, cantidadObjetos, producto);
+                ayudaGlobal = index;
+                cout << endl << endl << "Se hara reabastecimiento del producto " << producto[index].nombre << " que tiene solo " << producto[index].cantidad << " unidades" << endl << endl;
+                cout << "Ingrese la cantidad a agregar del producto: ";
+                cin >> aux;
+                cin.ignore();
+                producto[index].cantidad += aux;
+                cout << endl << "Ahora el producto cuenta con: " << producto[index].cantidad << " unidades " << endl;
+                sacarProductosRestock();
+                cont--;
+                suma += aux;
+            }
+            return suma;
         }
-        return suma;
+        else
+        {
+            cout << endl<<"Ok..."<<endl;
+            ayudaGlobal = valor;
+            return -2;
+        }
     }
     
 }
@@ -1864,7 +1895,7 @@ void menucola()
     cout << " 2. Mostrar creditos pendientes" << endl;
     cout << " 3. Consultar creditos" << endl;
     cout << "---------------------------------------------------" << endl;
-    cout << "Ingrese el número de la opcion deseada: ";
+    cout << "Ingrese el numero de la opcion deseada: ";
 }
 
 void administracionCreditos(Cola& cola)
@@ -1933,6 +1964,7 @@ void administracionCreditos(Cola& cola)
             hecho = true;
             break;
         case 3:
+            system("cls");
             cout << "Mostrando folios registrados" << endl << endl;
             preOrden(arbol);
             cout << "\nInserta el folio a buscar: ";
